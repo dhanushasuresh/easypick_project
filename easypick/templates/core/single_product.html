@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>EasyPick | {{ product.name }}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4b5d4f",
+                        "background-light": "#f7f7f7",
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; color: #141514; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .offer-card { border: 1px solid #e5e7eb; background: #ffffff; transition: all 0.2s ease; }
+        .offer-card:hover { border-color: #4b5d4f; box-shadow: 0 4px 12px rgba(75, 93, 79, 0.08); }
+        
+        .color-circle { position: relative; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .color-circle:hover { transform: scale(1.1); }
+        .color-circle.active::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border: 2px solid #4b5d4f;
+            border-radius: 9999px;
+        }
+
+        /* Wishlist Active State */
+        .wishlist-active {
+            font-variation-settings: 'FILL' 1 !important;
+            color: #ef4444 !important;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.2s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-background-light">
+
+<header class="sticky top-0 z-50 w-full bg-[#4a5d4e] text-white px-6 md:px-12 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="bg-white/10 p-1.5 rounded-lg">
+                <span class="material-symbols-outlined text-white text-3xl">grid_view</span>
+            </div>
+            <h2 class="text-xl font-extrabold tracking-tight">EasyPick</h2>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-10">
+            <a class="text-sm font-semibold hover:text-white/80 transition-colors uppercase tracking-wider" href="#">About Us</a>
+            <a class="text-sm font-semibold hover:text-white/80 transition-colors uppercase tracking-wider" href="#">Contact</a>
+        </nav>
+
+        <div class="flex items-center gap-4">
+            <div class="hidden lg:flex items-center bg-white/10 rounded-lg px-3 py-1.5 focus-within:bg-white/20 transition-all">
+                <span class="material-symbols-outlined text-white/70 text-xl">search</span>
+                <input class="bg-transparent border-none text-sm focus:ring-0 placeholder:text-white/50 w-48 text-white" placeholder="Search products..." type="text"/>
+            </div>
+            
+            <div class="flex items-center gap-1">
+                <a href="{% url 'cart' %}" class="inline-block">
+                    <button class="p-2 hover:bg-white/10 rounded-full transition-colors relative">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <span class="absolute top-1 right-1 bg-red-500 text-[10px] font-bold px-1 rounded-full border border-[#4a5d4e]">3</span>
+                    </button>
+                </a>
+                <a href="/wishlist" class="inline-block">
+                    <button class="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center">
+                        <span class="material-symbols-outlined">favorite</span>
+                    </button>
+                </a>
+                
+                <div class="relative inline-block">
+                    <button id="accountButton" class="p-2 hover:bg-white/10 rounded-full transition-colors flex items-center outline-none">
+                        <span class="material-symbols-outlined text-white">person</span>
+                        <span class="material-symbols-outlined text-sm hidden md:inline text-white">expand_more</span>
+                    </button>
+                    <div id="userDropdown" class="absolute right-0 top-full pt-2 w-52 hidden z-[100]">
+                        <div class="bg-white rounded-xl shadow-2xl border border-gray-100 py-2 animate-fade-in">
+                            <div class="px-4 py-3 border-b border-gray-50">
+                                <p class="text-[10px] text-[#737874] font-bold uppercase tracking-wider">Account</p>
+                                <p class="text-sm font-bold text-gray-900 truncate">{{data.first_name}}</p>
+                            </div>
+                            <a href="{% url 'customer_dashboard' %}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#141514] hover:bg-gray-50 transition-colors">
+                                <span class="material-symbols-outlined text-lg text-gray-400">dashboard</span>
+                                My Dashboard
+                            </a>
+                            <a href="/customer/profile/" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#141514] hover:bg-gray-50 transition-colors">
+                                <span class="material-symbols-outlined text-lg text-gray-400">account_circle</span>
+                                My Profile
+                            </a>
+                            <div class="my-2 border-t border-gray-100"></div>
+                            <button onclick="confirmLogout()" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-bold text-left">
+                                <span class="material-symbols-outlined text-lg">logout</span>
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-6">
+    <nav class="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-8">
+        <span>Audio & Video</span> <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <span>Speakers</span> <span class="material-symbols-outlined text-xs">chevron_right</span>
+        <span class="text-primary">Portable Bluetooth Speakers</span>
+    </nav>
+
+    <div class="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+        <div class="lg:col-span-5 w-full">
+            <div class="sticky top-28 space-y-4">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex md:flex-col gap-3 shrink-0 order-2 md:order-1 no-scrollbar overflow-x-auto">
+                        {% for p_image in product.images.all %}
+                        <button onclick="document.getElementById('mainImg').src='{{ p_image.image_url.url }}'" class="w-16 h-16 rounded-lg border-2 border-gray-200 bg-white p-1 shrink-0">
+                            <img src="{{ p_image.image_url.url }}" class="w-full h-full object-contain">
+                        </button>
+                        {% endfor %}
+                    </div>
+
+                    <div class="flex-1 bg-white rounded-2xl border border-gray-100 flex items-center justify-center relative p-8 min-h-[400px] order-1 md:order-2">
+                        {% with product.images.all|first as primary_image %}
+                        <img id="mainImg" src="{{ primary_image.image_url.url }}" class="max-w-full max-h-[380px] w-auto h-auto object-contain drop-shadow-xl" alt="{{ product.name }}">
+                        {% endwith %}
+                        
+                        <div class="absolute top-4 right-4">
+                            <a href="{% url 'add_wishlist' product.id %}">
+                            <button type="button" 
+                                    
+                                    class="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all duration-300 group inline-flex outline-none">
+                                
+                                <span id="wishlistIcon" class="material-symbols-outlined text-gray-400 group-hover:text-red-400 transition-all">
+                                    favorite
+                                </span>
+                            </button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7 space-y-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 leading-tight mb-2">BOSE SoundLink Max Portable Bluetooth Speaker</h1>
+                <p class="text-sm text-gray-500 mb-4">(IP67 Waterproof & Dustproof, Deep Bass, Stereo, Black)</p>
+                <a href="#" class="text-primary text-xs font-bold underline">Be the First One to Review</a>
+            </div>
+
+            <div class="flex items-center gap-10">
+                <div class="space-y-1">
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-4xl font-black">₹35,990.00</span>
+                        <span class="text-[10px] text-gray-400 font-bold uppercase">(Incl. all Taxes)</span>
+                    </div>
+                    <div class="text-xs">
+                        <span class="text-gray-400 line-through">MRP: ₹41,900.00</span>
+                        <span class="text-green-600 font-bold ml-2">(Save ₹5,910, 14.11% off)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Select Color: <span id="currentColorName" class="text-gray-900 ml-2">Black</span></h4>
+                <div class="flex gap-6 items-center py-1 pl-1">
+                    <button onclick="selectColor(this, 'Black')" class="color-circle active w-8 h-8 rounded-full bg-[#141514] border border-gray-200" title="Black"></button>
+                    <button onclick="selectColor(this, 'Blue Dusk')" class="color-circle w-8 h-8 rounded-full bg-[#3d5a80] border border-gray-200" title="Blue Dusk"></button>
+                    <button onclick="selectColor(this, 'Arctic White')" class="color-circle w-8 h-8 rounded-full bg-[#f3f4f6] border border-gray-200" title="Arctic White"></button>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Super Savings (5 OFFERS)</h4>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="offer-card p-5 rounded-xl">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="material-symbols-outlined text-primary">account_balance</span>
+                            <span class="text-xs font-black uppercase">HSBC Bank Offer</span>
+                        </div>
+                        <p class="text-[11px] text-gray-500">10% Instant Discount up to Rs.2,000 on HSBC Cards...</p>
+                        <button class="text-[10px] font-black text-primary underline uppercase mt-2">View more</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <a href="{% url 'add_cart' product.id %}" class="flex-1 border-2 border-primary text-primary py-4 rounded-xl font-black text-sm hover:bg-primary/5 transition-all text-center">Add to Cart</a>
+                <a href="{% url 'order_confirm' product.product.id %}" class="flex-1 bg-primary text-white py-4 rounded-xl font-black text-sm shadow-lg shadow-primary/20 hover:opacity-90 transition-all text-center">Buy Now</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="mt-20 py-8 bg-white border-t border-gray-100 text-center">
+    <p class="text-gray-400 text-[10px] uppercase tracking-[0.3em] font-bold">© 2026 EasyPick. Quality, Aesthetics, Sustainability.</p>
+</footer>
+
+<script>
+    // --- Wishlist Persistence Logic ---
+    const productId = '{{ product.product.id }}'; // Product ID from Django
+
+    function updateWishlistUI() {
+        const wishlist = JSON.parse(localStorage.getItem('user_wishlist')) || [];
+        const icon = document.getElementById('wishlistIcon');
+        
+        if (wishlist.includes(productId)) {
+            icon.classList.add('wishlist-active');
+        } else {
+            icon.classList.remove('wishlist-active');
+        }
+    }
+
+    function toggleWishlist(id) {
+        let wishlist = JSON.parse(localStorage.getItem('user_wishlist')) || [];
+        
+        if (wishlist.includes(productId)) {
+            wishlist = wishlist.filter(item => item !== productId);
+        } else {
+            wishlist.push(productId);
+        }
+        
+        localStorage.setItem('user_wishlist', JSON.stringify(wishlist));
+        updateWishlistUI();
+    }
+
+    // --- Account Dropdown Logic ---
+    const accBtn = document.getElementById('accountButton');
+    const accMenu = document.getElementById('userDropdown');
+
+    accBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        accMenu.classList.toggle('hidden');
+    });
+
+    window.addEventListener('click', (e) => {
+        if (!accMenu.contains(e.target) && !accBtn.contains(e.target)) {
+            accMenu.classList.add('hidden');
+        }
+    });
+
+    // --- Color Selection Logic ---
+    function selectColor(element, colorName) {
+        document.querySelectorAll('.color-circle').forEach(circle => circle.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('currentColorName').innerText = colorName;
+    }
+
+    // --- Logout Confirmation ---
+    function confirmLogout() {
+        if (confirm("Are you sure you want to sign out?")) {
+            window.location.href = "/logout";
+        }
+    }
+
+    // Initialize UI on page load
+    document.addEventListener('DOMContentLoaded', updateWishlistUI);
+</script>
+</body>
+</html>

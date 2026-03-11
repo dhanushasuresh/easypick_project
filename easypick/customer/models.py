@@ -31,8 +31,9 @@ class CartItems(models.Model):
     )
 
     product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE
+        'seller.Product',
+        on_delete=models.CASCADE,
+        related_name="item"
     )
 
     quantity = models.PositiveIntegerField(default=1)
@@ -44,32 +45,46 @@ class CartItems(models.Model):
     
 class Wishlist(models.Model):
 
-    user = models.ForeignKey(
+    wishlist_id = models.AutoField(primary_key=True)
+
+    customer = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         related_name="wishlist"
     )
 
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Wishlist - {self.customer}"
+
+class WishlistItems(models.Model):
+
+    wishlist = models.ForeignKey(
+        Wishlist,
+        on_delete=models.CASCADE,
+        related_name="items"
     )
 
-    slug = models.SlugField(unique=True)
+    product = models.ForeignKey(
+        'seller.ProductVariant',
+        on_delete=models.CASCADE,
+        related_name="wishlist_items"
+    )
 
     added_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user} - {self.product}"
-    
-
+        return f"{self.product.name}"
 
 class Order(models.Model):
 
     order_id = models.AutoField(primary_key=True)
 
     customer = models.ForeignKey(
-        User,
+        'core.User',
         on_delete=models.CASCADE,
         related_name="orders"
     )
@@ -131,7 +146,7 @@ class OrderItem(models.Model):
     )
 
     product = models.ForeignKey(
-        'Product',
+        'seller.Product',
         on_delete=models.CASCADE
     )
 
@@ -159,13 +174,13 @@ class Review(models.Model):
     review_id = models.AutoField(primary_key=True)
 
     product = models.ForeignKey(
-        'Product',
+        'seller.Product',
         on_delete=models.CASCADE,
         related_name="reviews"
     )
 
     user = models.ForeignKey(
-        User,
+        'core.User',
         on_delete=models.CASCADE,
         related_name="user_reviews"
     )
@@ -199,7 +214,7 @@ class ReviewImage(models.Model):
 class OrderHistory(models.Model):
 
     order = models.ForeignKey(
-        'Order',
+        Order,
         on_delete=models.CASCADE,
         related_name="history"
     )
@@ -230,7 +245,7 @@ class OrderNotification(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="notifications"
+        related_name='order_notifications'
     )
 
     order = models.ForeignKey(
