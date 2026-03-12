@@ -35,20 +35,10 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
         }
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.2s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .fav-active .material-symbols-outlined {
-            font-variation-settings: 'FILL' 1 !important;
-            color: #ef4444 !important;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .animate-fade-in { animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .fav-active .material-symbols-outlined { font-variation-settings: 'FILL' 1 !important; color: #ef4444 !important; }
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-[#141514]">
@@ -118,11 +108,6 @@
                     <span class="material-symbols-outlined">menu</span>
                 </button>
             </div>
-
-                <button class="p-2 md:hidden hover:bg-white/10 rounded-full transition-colors">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-            </div>
         </div>
     </div>
 </header>
@@ -136,88 +121,140 @@
     </section>
     
     <div class="max-w-7xl mx-auto px-4 md:px-12 py-8">
-        <div class="flex flex-col sm:flex-row items-center justify-between mb-8 pb-4 border-b border-[#f2f3f2]">
-            <p class="text-sm text-[#737874] mb-4 sm:mb-0">Showing <span class="font-bold text-[#141514]">12</span> of <span class="font-bold text-[#141514]">42</span> products</p>
-            <div class="flex items-center gap-3">
-                <label class="text-sm font-medium text-[#737874]" for="sort">Sort by:</label>
-                <select class="form-select border-none bg-[#f2f3f2] rounded-lg text-sm focus:ring-primary py-2 pl-3 pr-8 cursor-pointer" id="sort">
-                    <option>Newest Arrivals</option>
-                    <option>Price: Low to High</option>
-                    <option>Price: High to Low</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {% for x in product %}
-            <div class="product-card group relative bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-500">
-                
-                <div class="absolute top-3 left-0 right-0 z-10 px-3 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button class="wishlist-btn p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:text-red-500 transition-colors" onclick="event.preventDefault();">
-                        <span class="material-symbols-outlined text-[18px]">favorite</span>
-                    </button>
-                    
-                    <label class="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm cursor-pointer">
-                        <input type="checkbox" class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary">
-                        <span class="text-[9px] font-bold text-gray-700 uppercase">Compare</span>
-                    </label>
-                </div>
-
-                <a href="{% url 'single' x.id %}" class="block">
-                    <div class="aspect-square w-full bg-[#f8f9fa] flex items-center justify-center p-6 overflow-hidden">
-                        {% with x.images.all|first as primary_image %}
-                        <img src="{{ primary_image.image_url.url }}" 
-                             class="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-110" 
-                             alt="{{x.product.name}}">
-                        {% endwith %}
-                    </div>
-
-                    <div class="p-4 space-y-2">
-                        <h3 class="text-xs md:text-sm font-bold text-[#141514] line-clamp-2 min-h-[36px] leading-snug group-hover:text-primary transition-colors">
-                            {{x.product.name}}
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <aside class="w-full lg:w-64 flex-shrink-0">
+                <form method="GET" action="{% url 'product_filter' %}">
+                    <div class="border-b border-gray-200 pb-6">
+                        <h3 class="font-bold text-[#141514] mb-4 flex items-center justify-between cursor-pointer">
+                            Price Range
+                            <span class="material-symbols-outlined text-sm">expand_more</span>
                         </h3>
 
-                        <div class="flex items-center gap-1.5">
-                            <div class="flex items-center text-primary font-black text-[10px]">
-                                4.9 <span class="material-symbols-outlined text-[10px] ml-0.5" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-2 text-[#737874] text-xs">$</span>
+                                <input name="min_price" class="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-primary/20 focus:border-primary" placeholder="Min" type="number" value="{{ request.GET.min_price }}">
                             </div>
-                            <span class="text-[9px] font-bold text-gray-400">(86)</span>
+                            <span class="text-[#737874]">-</span>
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-2 text-[#737874] text-xs">$</span>
+                                <input name="max_price" class="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-primary/20 focus:border-primary" placeholder="Max" type="number" value="{{ request.GET.max_price }}">
+                            </div>
                         </div>
-
-                        <div class="flex flex-wrap items-baseline gap-1.5">
-                            <span class="text-base font-black text-[#141514]">₹{{x.selling_price}}</span>
-                            <span class="text-[10px] text-gray-400 line-through">₹{{x.mrp_price}}</span>
-                            <span class="text-[9px] font-bold text-green-600 bg-green-50 px-1 py-0.5 rounded">14% Off</span>
-                        </div>
-
-                        <div class="flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-xs text-gray-400">local_shipping</span>
-                            <p class="text-[10px] text-gray-500">Delivery by <span class="text-gray-900 font-bold">Mon, 9th</span></p>
-                        </div>
-
-                        <div class="pt-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                            <a href="{% url 'add_cart' x.id %}" class="w-full bg-primary text-white py-2 rounded-lg text-[10px] font-bold hover:bg-[#3a493d] flex items-center justify-center gap-1.5">
-                                <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
-                                Add to Cart
-                            </a>
-                        </div>
+                        
+                        <a href="{% url 'shop' %}">
+                            <button type="submit" class="bg-black text-white px-4 py-1 rounded text-sm">
+                            Apply
+                            </button>
+                        </a>
                     </div>
-                </a>
-            </div>
-            {% endfor %}
+                </form>
+            </aside>
+
+            <div class="flex-1">
+                <form method="GET">
+
+        <div class="flex flex-col sm:flex-row items-center justify-between mb-8 pb-4 border-b border-[#f2f3f2]">
+    
+        <p class="text-sm text-[#737874] mb-4 sm:mb-0">
+            Showing <span class="font-bold text-[#141514]">{{ products|length }}</span> products
+        </p>
+
+        <div class="flex items-center gap-3">
+            
+            <label class="text-sm font-medium text-[#737874]" for="sort">Sort by:</label>
+
+            <form method="GET">
+
+            <select name="sort" onchange="this.form.submit()"
+            class="form-select border-none bg-[#f2f3f2] rounded-lg text-sm focus:ring-primary py-2 pl-3 pr-8 cursor-pointer">
+
+            <option value="new_arrival">Newest Arrivals</option>
+            <option value="low">Price: Low to High</option>
+            <option value="high">Price: High to Low</option>
+
+            </select>
+
+            </form>
+
         </div>
 
-        <div class="mt-16 flex justify-center">
-            <nav class="flex items-center gap-2">
-                <button class="w-10 h-10 flex items-center justify-center rounded-lg border border-[#f2f3f2] hover:bg-primary hover:text-white transition-colors">
-                    <span class="material-symbols-outlined">chevron_left</span>
-                </button>
-                <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
-                <button class="w-10 h-10 flex items-center justify-center rounded-lg border border-[#f2f3f2] hover:bg-primary hover:text-white transition-colors">2</button>
-                <button class="w-10 h-10 flex items-center justify-center rounded-lg border border-[#f2f3f2] hover:bg-primary hover:text-white transition-colors">
-                    <span class="material-symbols-outlined">chevron_right</span>
-                </button>
-            </nav>
+</div>
+
+</form>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {% for x in product %}
+                    <div class="product-card group relative bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-500">
+                        <div class="absolute top-3 left-0 right-0 z-10 px-3 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button class="wishlist-btn p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:text-red-500 transition-colors {% if x.id in in_wishlist_ids %}fav-active{% endif %}" data-variant-id="{{ x.id }}">
+                                <span class="material-symbols-outlined text-[18px]">favorite</span>
+                            </button>
+                            
+                            <label class="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm cursor-pointer">
+                                <input type="checkbox" class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary">
+                                <span class="text-[9px] font-bold text-gray-700 uppercase">Compare</span>
+                            </label>
+                        </div>
+
+                        <a href="{% url 'single' x.id %}" class="block">
+                            <div class="aspect-square w-full bg-[#f8f9fa] flex items-center justify-center p-6 overflow-hidden">
+                                {% with x.images.all|first as primary_image %}
+                                <img src="{{ primary_image.image_url.url }}" 
+                                     class="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-110" 
+                                     alt="{{x.product.name}}">
+                                {% endwith %}
+                            </div>
+
+                            <div class="p-4 space-y-2">
+                                <h3 class="text-xs md:text-sm font-bold text-[#141514] line-clamp-2 min-h-[36px] leading-snug group-hover:text-primary transition-colors">
+                                    {{x.product.name}}
+                                </h3>
+
+                                <div class="flex items-center gap-1.5">
+                                    <div class="flex items-center text-primary font-black text-[10px]">
+                                        4.9 <span class="material-symbols-outlined text-[10px] ml-0.5" style="font-variation-settings: 'FILL' 1;">star</span>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-gray-400">(86)</span>
+                                </div>
+
+                                <div class="flex flex-wrap items-baseline gap-1.5">
+                                    <span class="text-base font-black text-[#141514]">₹{{x.selling_price}}</span>
+                                    <span class="text-[10px] text-gray-400 line-through">₹{{x.mrp_price}}</span>
+                                    <span class="text-[9px] font-bold text-green-600 bg-green-50 px-1 py-0.5 rounded">14% Off</span>
+                                </div>
+
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-xs text-gray-400">local_shipping</span>
+                                    <p class="text-[10px] text-gray-500">Delivery by <span class="text-gray-900 font-bold">Mon, 9th</span></p>
+                                </div>
+
+                                <div class="pt-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                    <a href="{% url 'add_cart' x.id %}" class="w-full bg-primary text-white py-2 rounded-lg text-[10px] font-bold hover:bg-[#3a493d] flex items-center justify-center gap-1.5">
+                                        <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                                        Add to Cart
+                                    </a>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-16 flex justify-center">
+                    <nav class="flex items-center gap-2">
+                        <button class="w-10 h-10 flex items-center justify-center rounded-lg border border-[#f2f3f2] hover:bg-primary hover:text-white transition-colors">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </button>
+                        <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
+                        <button class="w-10 h-10 flex items-center justify-center rounded-lg border border-[#f2f3f2] hover:bg-primary hover:text-white transition-colors">2</button>
+                        <button class="w-10 h-10 flex items-center justify-center rounded-lg border border-[#f2f3f2] hover:bg-primary hover:text-white transition-colors">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
         </div>
     </div>
 </main>
@@ -269,36 +306,39 @@
     const btn = document.getElementById('accountButton');
     const menu = document.getElementById('userDropdown');
 
-    btn.addEventListener('click', (e) => {
+    btn?.addEventListener('click', (e) => {
         e.stopPropagation();
         menu.classList.toggle('hidden');
     });
 
     window.addEventListener('click', (e) => {
-        if (!menu.contains(e.target) && !btn.contains(e.target)) {
-            menu.classList.add('hidden');
+        if (!menu?.contains(e.target) && !btn?.contains(e.target)) {
+            menu?.classList.add('hidden');
         }
     });
+
+    async function toggleWishlist(variantId, button) {
+        try {
+            const response = await fetch(`/toggle_wishlist/${variantId}/`, {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await response.json();
+            if (data.in_wishlist) button.classList.add('fav-active');
+            else button.classList.remove('fav-active');
+        } catch (error) {
+            console.error('Wishlist toggle failed:', error);
+        }
+    }
 
     document.addEventListener('click', function (e) {
         const wishBtn = e.target.closest('.wishlist-btn');
         if (wishBtn) {
             e.preventDefault();
-            wishBtn.classList.toggle('fav-active');
+            const variantId = wishBtn.dataset.variantId;
+            if (variantId) toggleWishlist(variantId, wishBtn);
         }
     });
-    function toggleWishlist(id) {
-        let wishlist = JSON.parse(localStorage.getItem('user_wishlist')) || [];
-        
-        if (wishlist.includes(productId)) {
-            wishlist = wishlist.filter(item => item !== productId);
-        } else {
-            wishlist.push(productId);
-        }
-        
-        localStorage.setItem('user_wishlist', JSON.stringify(wishlist));
-        updateWishlistUI();
-    }
 </script>
 </body>
 </html>

@@ -131,36 +131,7 @@ def account_security_view(request):
 def customer_notification_view(request):
     return render(request,'customer/notification.html')
 
-# @login_required
-# def add_wishlist(request, id):
 
-#     product = Product.objects.get(id=id)
-#     user = request.user
-
-#     wishlist, created = Wishlist.objects.get_or_create(customer=user)
-
-#     try:
-#         wishlist_item = WishlistItems.objects.get(
-#             wishlist=wishlist,
-#             product=product
-#         )
-#     except WishlistItems.DoesNotExist:
-#         WishlistItems.objects.create(
-#             wishlist=wishlist,
-#             product=product
-#         )
-    
-
-#     return redirect('single', id=id)
-        
-# @login_required
-# def wishlist(request):
-    wishlist = Wishlist.objects.filter(customer=request.user).first()
-    if wishlist:
-        wishlist_items = WishlistItems.objects.filter(wishlist=wishlist).select_related('product').prefetch_related('product__variants', 'product__variants__images')
-    else:
-        wishlist_items = []
-    return render(request,'customer/customer_wishlist.html', {'wishlist_items': wishlist_items})
 
 def add_wishlist(request, id):
     variant = ProductVariant.objects.get(id=id)
@@ -191,6 +162,47 @@ def wishlist_remove(request, id):
     wishlist_item.delete()
     return redirect('wishlist')
 
+from django.http import JsonResponse
+
+@login_required
+def toggle_wishlist(request, id):
+    """
+    Toggle wishlist item: add if not exists, remove if exists
+    Returns JSON for AJAX frontend
+    """
+    try:
+        variant = ProductVariant.objects.get(id=id)
+    except ProductVariant.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'}, status=404)
+    
+    wishlist, created = Wishlist.objects.get_or_create(customer=request.user)
+    
+    # Check if item already exists
+    existing_item = WishlistItems.objects.filter(
+        wishlist=wishlist,
+        product=variant
+    ).first()
+    
+    if existing_item:
+        # Remove it
+        existing_item.delete()
+        status = "removed"
+        in_wishlist = False
+    else:
+        # Add it
+        WishlistItems.objects.create(
+            wishlist=wishlist,
+            product=variant
+        )
+        status = "added"
+        in_wishlist = True
+    
+    return JsonResponse({
+        'status': status,
+        'in_wishlist': in_wishlist,
+        'variant_id': id
+    })
+
 def customer_dashboard_view(request):
     return render(request,'customer/customer_dashboard.html',{'user':request.user})
 
@@ -208,7 +220,16 @@ def customer_recommentation(request):
 
 def shop_view(request):
     product=ProductVariant.objects.all().select_related('product').prefetch_related('images')
-    return render(request,'core/shop.html',{'product':product})
+    
+    in_wishlist_ids = set()
+    if request.user.is_authenticated:
+        wishlist = Wishlist.objects.filter(customer=request.user).first()
+        if wishlist:
+            in_wishlist_ids = set(WishlistItems.objects.filter(
+                wishlist=wishlist
+            ).values_list('product_id', flat=True))
+    
+    return render(request,'core/shop.html',{'product':product, 'in_wishlist_ids': in_wishlist_ids})
 
 def delete_account(request):
     if request.method=="POST":
@@ -235,7 +256,16 @@ def subcategory_view(request,id):
 
 def single_view(request,id):
     product=ProductVariant.objects.select_related('product').prefetch_related('images').get(id=id)
-    return render(request,'core/single_product.html',{'product':product})
+    
+    in_wishlist = False
+    if request.user.is_authenticated:
+        wishlist = Wishlist.objects.filter(customer=request.user).first()
+        if wishlist:
+            in_wishlist = WishlistItems.objects.filter(
+                wishlist=wishlist, product=product
+            ).exists()
+    
+    return render(request,'core/single_product.html',{'product':product, 'in_wishlist': in_wishlist})
 
 @login_required
 def add_cart(request, id):
@@ -320,3 +350,24 @@ def search_view(request):
     else:
         product=ProductVariant.objects.none()
     return render(request,'customer/search_result.html',{'product':product, 'query': search_product})
+
+def product_filter(request):
+    products=ProductVariant.objects.all().select_related('product').prefetch_related('images')
+    max_price=request.GET.get('max_price')
+    min_price=request.GET.get('min_price')
+    if min_price:
+        products = products.filter(selling_price__gte=min_price)
+    if max_price:
+        products = products.filter(selling_price__lte=max_price)
+    return render(request,'customer/price_filter.html',{'products':products})
+
+def sort_view(request):
+    products=ProductVariant.objects.all().select_related('product').prefetch_related('images')
+    sort=request.GET.get('sort')
+    if sort=='new_arrival':
+        products=products.order_by('-id')
+    elif sort=='low':
+        products=products.order_by('selling_price')
+    elif sort == 'high':
+        products = products.order_by('-selling_price')
+    return render(request,'customer/price_filter.html',{'products':products})

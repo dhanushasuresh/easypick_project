@@ -146,16 +146,11 @@
                         {% endwith %}
                         
                         <div class="absolute top-4 right-4">
-                            <a href="{% url 'add_wishlist' product.id %}">
-                            <button type="button" 
-                                    
-                                    class="p-3 bg-white/80 backdrop-blur-md rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all duration-300 group inline-flex outline-none">
-                                
+                            <button type="button" class="wishlist-btn p-3 bg-white/80 backdrop-blur-md rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all duration-300 group inline-flex outline-none {% if in_wishlist %}fav-active{% endif %}" data-variant-id="{{ product.id }}">
                                 <span id="wishlistIcon" class="material-symbols-outlined text-gray-400 group-hover:text-red-400 transition-all">
                                     favorite
                                 </span>
                             </button>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -218,32 +213,45 @@
 </footer>
 
 <script>
-    // --- Wishlist Persistence Logic ---
-    const productId = '{{ product.product.id }}'; // Product ID from Django
-
-    function updateWishlistUI() {
-        const wishlist = JSON.parse(localStorage.getItem('user_wishlist')) || [];
-        const icon = document.getElementById('wishlistIcon');
-        
-        if (wishlist.includes(productId)) {
-            icon.classList.add('wishlist-active');
-        } else {
-            icon.classList.remove('wishlist-active');
+    // Global wishlist toggle function for AJAX (shared with shop)
+    async function toggleWishlist(variantId, button) {
+        try {
+            const response = await fetch(`/toggle_wishlist/${variantId}/`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            
+            // Update button/icon state (unified .wishlist-btn .fav-active)
+            if (data.in_wishlist) {
+                button.classList.add('fav-active');
+            } else {
+                button.classList.remove('fav-active');
+            }
+            
+            console.log(`Wishlist ${data.status}: variant ${variantId}`);
+        } catch (error) {
+            console.error('Wishlist toggle failed:', error);
+            alert('Please log in to use wishlist');
         }
     }
 
-    function toggleWishlist(id) {
-        let wishlist = JSON.parse(localStorage.getItem('user_wishlist')) || [];
-        
-        if (wishlist.includes(productId)) {
-            wishlist = wishlist.filter(item => item !== productId);
-        } else {
-            wishlist.push(productId);
+    // Event delegation for single product page
+    document.addEventListener('click', function (e) {
+        const wishBtn = e.target.closest('.wishlist-btn');
+        if (wishBtn) {
+            e.preventDefault();
+            const variantId = wishBtn.dataset.variantId;
+            if (variantId) {
+                toggleWishlist(variantId, wishBtn);
+            }
         }
-        
-        localStorage.setItem('user_wishlist', JSON.stringify(wishlist));
-        updateWishlistUI();
-    }
+    });
 
     // --- Account Dropdown Logic ---
     const accBtn = document.getElementById('accountButton');

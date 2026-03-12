@@ -33,7 +33,10 @@ urlpatterns = [
     path('order_confirm/<int:id>', views.order_confirm_view, name='order_confirm'),
     path('payment',views.payment_view,name='payment'),
     path('remove_wishlist/<int:id>',views.wishlist_remove,name='remove_wishlist'),
+    path('toggle_wishlist/<int:id>/', views.toggle_wishlist, name='toggle_wishlist'),
     path('search/',views.search_view,name='search'),
+    path('product_filter/',views.product_filter,name='product_filter'),
+    path('sort/',views.sort_view,name='sort'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
