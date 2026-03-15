@@ -29,18 +29,14 @@ def admin_view(request):
         if user is not None and user.is_superuser:
             login(request,user)
             messages.success(request,'Login Successfully')
+            print(request.user)
             return redirect('admin_dashboard')
+
         else:
             messages.error(request,"You are not authorized as admin")
             return redirect('login')
     return render(request,'admin/admin_login.html')
 
-
-def admin_dashboard(request):
-    if not request.user.is_authenticated or not request.user.is_superuser:
-        messages.error(request, "You are not authorized as admin")
-        return redirect('admin_login')
-    return render(request, 'admin/admin_dashboard.html')
 
 
 def shop_view(request):
@@ -79,6 +75,8 @@ def shop_view(request):
         'products_count': products_count,
         'in_wishlist_ids': in_wishlist_ids
     })
+
+
 
 def logout_view(request):
     logout(request)

@@ -19,6 +19,7 @@ class User(AbstractUser):
     age=models.IntegerField(null=True)
     dob=models.DateField(null=True,blank=True)
     date_login=models.DateField(null=True)
+    is_active = models.BooleanField(default=True)
 
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='addresses')

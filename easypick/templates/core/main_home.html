@@ -115,22 +115,29 @@
                 <span class="text-primary font-bold tracking-widest uppercase text-sm block mb-2">Our Selection</span>
                 <h2 class="text-3xl md:text-4xl font-bold text-[#141514]">Fashion & Apparel</h2>
             </div>
-            <a class="flex items-center gap-2 text-primary font-bold hover:underline" href="#">
+            <a class="flex items-center gap-2 text-primary font-bold hover:underline" href="{% url 'shop' %}">
                 View all items
                 <span class="material-symbols-outlined text-sm">open_in_new</span>
             </a>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for product in products.fashion.all|slice:":4" %}
             <div class="group">
-                <div class="relative overflow-hidden rounded-xl bg-[#f2f3f2] aspect-[4/5] mb-4">
-                    <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=800");'></div>
+                <div class="relative overflow-hidden rounded-xl mb-4 aspect-[4/5]">
+                    {% if product.images.first %}
+                    <img alt="{{ product.product.name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="{{ product.images.first.image.url }}"/>
+                    {% else %}
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-4xl text-gray-400">image_not_supported</span>
+                    </div>
+                    {% endif %}
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-[#141514] group-hover:text-primary transition-colors">Casual Style</h3>
-                    <p class="text-[#737874] text-sm mb-3">Premium Comfort Collection</p>
+                    <h3 class="text-lg font-semibold text-[#141514] group-hover:text-primary transition-colors">{{ product.product.name|truncatechars:25 }}</h3>
+                    <p class="text-[#737874] text-sm mb-3">{{ product.product.description|truncatechars:50 }}</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold text-[#141514]">$89.00</span>
+                        <span class="text-xl font-bold text-[#141514]">Rs. {{ product.selling_price }}</span>
                         <button class="bg-[#f2f3f2] text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
                             <span class="material-symbols-outlined text-lg">add_shopping_cart</span>
                             Add
@@ -138,7 +145,13 @@
                     </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <span class="material-symbols-outlined text-6xl text-gray-400 block mb-4">inventory</span>
+                <p class="text-gray-500 text-lg">No fashion products available yet.</p>
             </div>
+            {% endfor %}
+        </div>
     </section>
 
     <section class="max-w-7xl mx-auto px-6 md:px-12 py-20 bg-background-light">
@@ -147,25 +160,38 @@
                 <span class="text-primary font-bold tracking-widest uppercase text-sm block mb-2">Modern Gadgets</span>
                 <h2 class="text-3xl md:text-4xl font-bold text-[#141514]">Electronics</h2>
             </div>
-            <a class="flex items-center gap-2 text-primary font-bold hover:underline" href="#">
+            <a class="flex items-center gap-2 text-primary font-bold hover:underline" href="{% url 'shop' %}">
                 View all
             </a>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for product in products.electronics.all|slice:":4" %}
             <div class="group">
-                <div class="relative overflow-hidden rounded-xl bg-white aspect-[4/5] mb-4">
-                    <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800");'></div>
+                <div class="relative overflow-hidden rounded-xl mb-4 aspect-[4/5]">
+                    {% if product.images.first %}
+                    <img alt="{{ product.product.name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="{{ product.images.first.image.url }}"/>
+                    {% else %}
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-4xl text-gray-400">image_not_supported</span>
+                    </div>
+                    {% endif %}
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-[#141514] group-hover:text-primary transition-colors">Wireless Headphones</h3>
-                    <p class="text-[#737874] text-sm mb-3">Deep Bass & ANC</p>
+                    <h3 class="text-lg font-semibold text-[#141514] group-hover:text-primary transition-colors">{{ product.product.name|truncatechars:25 }}</h3>
+                    <p class="text-[#737874] text-sm mb-3">{{ product.product.description|truncatechars:50 }}</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold text-[#141514]">$249.00</span>
+                        <span class="text-xl font-bold text-[#141514]">Rs. {{ product.selling_price }}</span>
                         <button class="bg-white text-primary border border-primary/10 hover:bg-primary hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">Add</button>
                     </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <span class="material-symbols-outlined text-6xl text-gray-400 block mb-4">inventory</span>
+                <p class="text-gray-500 text-lg">No electronics products available yet.</p>
+            </div>
+            {% endfor %}
         </div>
     </section>
 </main>
