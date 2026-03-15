@@ -6,7 +6,8 @@ from seller.models import ProductVariant
 from customer.models import Wishlist, WishlistItems
 
 def main_home_view(request):
-    return render(request,'core/main_home.html')
+    products=ProductVariant.objects.all().select_related('product').prefetch_related('images')
+    return render(request,'core/main_home.html',{"products":products})
 def login_view(request):
     if request.method=="POST":
         email=request.POST.get('email')
