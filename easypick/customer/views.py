@@ -371,8 +371,29 @@ def cart_order(request,id):
 @login_required
 def order_confirm_view(request, id):
     product = ProductVariant.objects.select_related('product').prefetch_related('images').get(id=id)
-    address=Address.objects.filter(user=request.user)
-    return render(request,'customer/order_confirm.html',{'product':product,'address':address})
+    address = Address.objects.filter(user=request.user)
+    
+    quantity = request.GET.get('qty', 1)
+    quantity = int(quantity)
+    
+    selling_price = product.selling_price
+    subtotal = selling_price * quantity
+    
+    mrp = getattr(product, 'mrp', selling_price)
+    discount_amount = mrp - selling_price
+    discount_percentage = (discount_amount / mrp * 100) if mrp > 0 else 0
+    
+    context = {
+        'product': product,
+        'address': address,
+        'quantity': quantity,
+        'subtotal': subtotal,
+        'selling_price': selling_price,
+        'discount_amount': discount_amount,
+        'discount_percentage': discount_percentage,
+        'product_id': id
+    }
+    return render(request, 'customer/order_confirm.html', context)
 
 def payment_view(request):
     return render(request,'customer/payment.html')

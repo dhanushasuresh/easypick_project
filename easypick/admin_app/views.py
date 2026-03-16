@@ -15,3 +15,5 @@ def user_view(request):
     active=User.objects.filter(is_active=True).count()
     users=User.objects.all()
     return render(request,'admin/admin_user.html',{"count":total_user,"active":active,"user":users})
+
+

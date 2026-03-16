@@ -14,18 +14,74 @@
 </head>
 <body class="bg-gray-50 text-gray-900">
 
-<header class="sticky top-0 z-50 w-full bg-[#4a5d4e] text-white px-6 py-4 shadow-lg">
+<header class="sticky top-0 z-50 w-full bg-[#4a5d4e] text-white px-6 md:px-12 py-4">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-3xl">grid_view</span>
+            <div class="bg-white/10 p-1.5 rounded-lg">
+                <span class="material-symbols-outlined text-white text-3xl">grid_view</span>
+            </div>
             <h2 class="text-xl font-extrabold tracking-tight">EasyPick</h2>
         </div>
+
+        <nav class="hidden md:flex items-center gap-10">
+            <a class="text-sm font-semibold hover:text-white/80 transition-colors uppercase tracking-wider" href="#">About Us</a>
+            <a class="text-sm font-semibold hover:text-white/80 transition-colors uppercase tracking-wider" href="#">Contact</a>
+        </nav>
+
         <div class="flex items-center gap-4">
-            <button class="p-2 hover:bg-white/10 rounded-full relative">
-                <span class="material-symbols-outlined">shopping_cart</span>
-                <span class="absolute top-1 right-1 bg-red-500 text-[10px] font-bold px-1.5 rounded-full border border-[#4a5d4e]">3</span>
-            </button>
-            <button class="p-2 hover:bg-white/10 rounded-full"><span class="material-symbols-outlined">person</span></button>
+            <form method="GET" action="{% url 'search' %}">
+                <div class="hidden lg:flex items-center bg-white/10 rounded-lg px-3 py-1.5 focus-within:bg-white/20 transition-all">
+                    <input type="text" name="search" placeholder="Search products..." class="bg-transparent outline-none text-white placeholder-white/70 px-2">
+                </div>
+            </form>
+            
+            <div class="flex items-center gap-1">
+                <a href="{% url 'cart' %}" class="inline-block">
+                    <button class="p-2 hover:bg-white/10 rounded-full transition-colors relative">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <span id="cart-count-badge" class="absolute top-1 right-1 bg-red-500 text-[10px] font-bold px-1 rounded-full border border-[#4a5d4e]">
+                            {{ cart_item|length }}
+                        </span>
+                    </button>
+                </a>
+                <a href="{% url 'wishlist' %}" class="inline-block">
+                    <button class="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center">
+                        <span class="material-symbols-outlined">favorite</span>
+                    </button>
+                </a>
+                
+                <div class="relative inline-block">
+                    <button id="accountButton" class="p-2 hover:bg-white/10 rounded-full transition-colors flex items-center outline-none">
+                        <span class="material-symbols-outlined text-white">person</span>
+                        <span class="material-symbols-outlined text-sm hidden md:inline text-white">expand_more</span>
+                    </button>
+                    <div id="userDropdown" class="absolute right-0 top-full pt-2 w-52 hidden z-[100]">
+                        <div class="bg-white rounded-xl shadow-2xl border border-gray-100 py-2 animate-fade-in">
+                            <div class="px-4 py-3 border-b border-gray-50">
+                                <p class="text-[10px] text-[#737874] font-bold uppercase tracking-wider">Account</p>
+                                <p class="text-sm font-bold text-gray-900 truncate">{{data.first_name}}</p>
+                            </div>
+                            <a href="{% url 'customer_dashboard' %}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#141514] hover:bg-gray-50 transition-colors">
+                                <span class="material-symbols-outlined text-lg text-gray-400">dashboard</span>
+                                My Dashboard
+                            </a>
+                            <a href="/customer/profile/" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#141514] hover:bg-gray-50 transition-colors">
+                                <span class="material-symbols-outlined text-lg text-gray-400">account_circle</span>
+                                My Profile
+                            </a>
+                            <div class="my-2 border-t border-gray-100"></div>
+                            <button onclick="confirmLogout()" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-bold">
+                                <span class="material-symbols-outlined text-lg">logout</span>
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="p-2 md:hidden hover:bg-white/10 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+            </div>
         </div>
     </div>
 </header>
@@ -77,37 +133,48 @@
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div class="flex flex-col md:flex-row gap-8">
-                    <div class="w-full md:w-40 h-40 bg-gray-50 rounded-lg flex items-center justify-center p-4">
-                        {% with product.images.all|first as primary_image %}
-                            <img src="{{ primary_image.image_url.url }}" class="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-110" alt="{{x.product.name}}">
-                        {% endwith %}
-                    </div>
+                <div class="w-32 h-32 flex-shrink-0 mx-auto md:mx-0">
+                    {% with product.images.all|first as primary_img %}
+                    <img src="{{ primary_img.image_url.url }}" alt="{{ product.product.name }}" class="w-full h-full object-contain">
+                    {% endwith %}
+                </div>
                     <div class="flex-grow">
                         <div class="flex justify-between items-start">
-                            <h2 class="text-xl font-bold text-gray-900">{{product.product.name}}</h2>
+                        <h2 class="text-lg font-medium text-gray-900 leading-tight">{{ product.product.name }}</h2>
                             <span class="text-[#4a5d4e] font-black text-xs italic tracking-tighter border-2 border-[#4a5d4e] px-2 py-0.5 rounded">ASSURED</span>
                         </div>
                         <p class="text-sm text-gray-500 mt-2">{{product.product.description}}</p>
                         
-                        <div class="flex items-center gap-2 mt-3">
-                            <span class="bg-green-700 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center font-bold">4.5 <span class="material-symbols-outlined text-[10px] ml-1" style="font-variation-settings: 'FILL' 1;">star</span></span>
-                            <span class="text-xs text-gray-400 font-bold">(1,248 Reviews)</span>
-                        </div>
+                        {% with product.product.reviews.all as reviews %}
+                        {% if reviews %}
+                        {% with reviews.first.rating as avg_rating %}
+                        <span class="bg-green-700 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center font-bold">{{ avg_rating }} <span class="material-symbols-outlined text-[10px] ml-0.5" style="font-variation-settings: 'FILL' 1;">star</span></span>
+                        <span class="text-xs text-gray-400 font-bold">({{ reviews.count }})</span>
+                        {% endwith %}
+                        {% else %}
+                        <span class="text-xs text-gray-400 font-bold">No reviews yet</span>
+                        {% endif %}
+                        {% endwith %}
+                        <span class="text-primary font-bold text-xs ml-2 italic">Assured</span>
 
-                        <div class="flex items-baseline gap-3 mt-6">
-                            
-                            <span class="text-2xl font-black text-gray-900">₹{{product.selling_price}}</span>
-                            <span class="text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded">50% Off</span>
+                        <div class="flex items-baseline gap-2 mt-4">
+                            <span class="text-gray-400 line-through text-sm">₹{{ product.mrp }}</span>
+                            <span class="text-xl font-bold text-gray-900">₹{{ product.selling_price }}</span>
+                            {% if discount_percentage > 0 %}
+                            <span class="text-green-600 text-sm font-bold">{{ discount_percentage|floatformat:0 }}% Off</span>
+                            {% endif %}
                         </div>
-                        <p class="text-sm mt-4 text-gray-700">Delivery by <span class="font-bold text-green-700">Sunday, Mar 22</span></p>
+                        <p class="text-sm mt-4">Delivery by <span class="font-bold">Mar 15, Sun</span></p>
                     </div>
                 </div>
                 
                 <div class="mt-8 flex items-center gap-6 border-t border-gray-50 pt-6">
-                    <div class="flex items-center bg-gray-50 rounded-lg px-3 py-1 border border-gray-200">
-                        <span class="text-xs font-bold text-gray-500 mr-2">Qty:</span>
-                        <select class="bg-transparent border-none text-sm font-bold focus:ring-0 cursor-pointer py-1">
-                            <option>1</option><option>2</option><option>3</option>
+                    <div class="flex items-center border border-gray-200 rounded px-2">
+                        <span class="text-xs mr-2">Qty:</span>
+                        <select onchange="updateQty(this.value)" class="border-none text-sm font-bold focus:ring-0 cursor-pointer py-1" {% if quantity %}value="{{quantity}}"{% endif %}>
+                            <option value="1" {% if quantity == 1 %}selected{% endif %}>1</option>
+                            <option value="2" {% if quantity == 2 %}selected{% endif %}>2</option>
+                            <option value="3" {% if quantity == 3 %}selected{% endif %}>3</option>
                         </select>
                     </div>
                     <button class="text-xs font-bold text-gray-400 hover:text-red-600 uppercase tracking-widest transition-colors flex items-center gap-1">
@@ -129,32 +196,46 @@
             <div class="bg-white rounded-xl shadow-lg border border-gray-100 sticky top-28 overflow-hidden">
                 <h3 class="p-5 border-b border-gray-50 font-black text-gray-400 uppercase text-xs tracking-[0.2em]">Price Details</h3>
                 <div class="p-6 space-y-5">
-                    <div class="flex justify-between text-sm text-gray-600">
+                    <div class="flex justify-between text-sm">
                         <span>Price (1 item)</span>
-                        <span class="font-semibold text-gray-900">₹4,999</span>
-                    </div>
-                    <div class="flex justify-between text-sm text-gray-600">
-                        <span class="flex items-center gap-1">Platform Fee <span class="material-symbols-outlined text-xs">info</span></span>
-                        <span class="font-semibold text-gray-900">₹7</span>
+                        <span>₹{{product.mrp}}</span>
                     </div>
                     <div class="flex justify-between text-sm">
-                        <span class="text-green-600 font-bold">Discount</span>
-                        <span class="text-green-600 font-bold">- ₹2,500</span>
+                        <span class="flex items-center gap-1">Quantity</span>
+                        <span>{{quantity}}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="flex items-center gap-1 text-primary font-medium">Discounts <span class="material-symbols-outlined text-xs">expand_more</span></span>
+                        {% if discount_amount > 0 %}
+                        <span class="text-green-600 font-medium">- ₹{{ discount_amount|floatformat:0 }}</span>
+                        {% else %}
+                        <span class="text-green-600 font-medium">- ₹0</span>
+                        {% endif %}
                     </div>
                     
-                    <div class="pt-6 border-t-2 border-dashed border-gray-100 flex justify-between items-center">
-                        <span class="text-xl font-black text-gray-900">Total Amount</span>
-                        <span class="text-xl font-black text-[#4a5d4e]">₹2,506</span>
+                    <div class="pt-4 border-t border-dashed border-gray-200 flex justify-between items-center">
+                        <span class="text-lg font-bold">Total Amount</span>
+                        <span class="text-lg font-bold">₹{{subtotal}}</span>
                     </div>
 
-                    <div class="bg-green-50 p-4 rounded-xl border border-green-100 flex items-center gap-3">
-                        <span class="material-symbols-outlined text-green-600">loyalty</span>
-                        <p class="text-green-700 text-xs font-bold leading-tight">You are saving ₹2,500 on this order!</p>
+                    {% if discount_amount > 0 %}
+                    <div class="bg-green-50 p-3 mx-4 mb-4 rounded-lg">
+                        <p class="text-green-700 text-sm font-bold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">loyalty</span>
+                            You'll save ₹{{ discount_amount|floatformat:0 }} on this order!
+                        </p>
                     </div>
+                    {% endif %}
 
-                    <a href="#" class="block w-full bg-[#fb641b] text-white text-center font-black py-4 rounded-xl shadow-xl shadow-orange-200 hover:bg-[#e65a17] hover:-translate-y-0.5 transition-all uppercase text-sm tracking-widest">
-                        Continue to Payment
-                    </a>
+                    <div class="p-4 border-t border-gray-100 flex items-center gap-4">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-gray-400 line-through">₹{{ product.mrp }}</span>
+                            <span class="text-lg font-black">₹{{ subtotal }}</span>
+                        </div>
+                        <a href="{% url 'payment' %}" class="flex-grow bg-[#fb641b] hover:bg-[#e65a17] text-white font-bold py-3 px-8 rounded shadow-md uppercase text-sm transition-all text-center">
+                            Continue
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -202,78 +283,32 @@
 
 <div id="overlay" onclick="togglePanel(false)" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-[90]"></div>
 
-<script>
-function togglePanel(isOpen) {
-        const panel = document.getElementById('sidePanel');
-        const overlay = document.getElementById('overlay');
-        if (isOpen) {
-            panel.classList.remove('translate-x-full');
-            overlay.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        } else {
-            panel.classList.add('translate-x-full');
-            overlay.classList.add('hidden');
-            document.body.style.overflow = '';
+    <script>
+    function confirmLogout() {
+        if (confirm("Are you sure you want to sign out?")) {
+            window.location.href = "/logout";
         }
     }
 
-let selectedAddressId = null;
-
-document.querySelectorAll('.address-item').forEach(item => {
-    item.addEventListener('click', function() {
-        document.querySelectorAll('.address-item').forEach(i => i.classList.remove('ring-2', 'ring-[#4a5d4e]', 'bg-blue-50/50', 'selected-address'));
-        document.querySelectorAll('.radio-dot').forEach(dot => {
-            dot.classList.remove('bg-[#4a5d4e]', 'text-white', 'border-[#4a5d4e]');
-            dot.classList.add('border-gray-300', 'text-gray-400');
-        });
-        
-        this.classList.add('ring-2', 'ring-[#4a5d4e]', 'bg-blue-50/50', 'selected-address');
-        const dot = this.querySelector('.radio-dot');
-        dot.classList.remove('border-gray-300', 'text-gray-400');
-        dot.classList.add('bg-[#4a5d4e]', 'text-white', 'border-[#4a5d4e]');
-        
-        selectedAddressId = this.dataset.addressId;
-    });
-});
-
-function useSelectedAddress() {
-    if (!selectedAddressId) {
-        alert('Please select an address first');
-        return;
+    function updateQty(qty) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('qty', qty);
+        window.location.href = url;
     }
-    
-    // Find the selected address data
-    const selectedItem = document.querySelector(`[data-address-id="${selectedAddressId}"]`);
-    const name = selectedItem.querySelector('p.font-semibold').textContent;
-    const fullAddress = selectedItem.querySelector('p.text-sm').textContent;
-    
-    // Update main address display
-    const mainSection = document.querySelector('.bg-white.rounded-xl.p-6');
-    const nameEl = mainSection.querySelector('p.font-bold.text-lg');
-    const addressEl = mainSection.querySelector('p.text-sm');
-    const phoneEl = mainSection.querySelector('p.text-xs');
-    
-    nameEl.textContent = name;
-    addressEl.textContent = fullAddress;
-    
-    // Update type badge
-    const typeSpan = mainSection.querySelector('span.bg-blue-50');
-    typeSpan.textContent = selectedItem.querySelector('span.text-sm.font-bold').textContent;
-    
-    // Close panel
-    togglePanel(false);
-    
-    // Success feedback
-    const useButton = event.target;
-    const originalHTML = useButton.innerHTML;
-    useButton.innerHTML = '✓ Address Updated';
-    useButton.classList.add('bg-green-600');
-    setTimeout(() => {
-        useButton.innerHTML = originalHTML;
-        useButton.classList.remove('bg-green-600');
-    }, 1500);
-}
-</script>
+
+    // Address Panel Functions
+    function openAddressPanel() {
+        document.getElementById('addressPanel').classList.remove('translate-x-full');
+        document.getElementById('addressOverlay').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAddressPanel() {
+        document.getElementById('addressPanel').classList.add('translate-x-full');
+        document.getElementById('addressOverlay').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    </script>
 
 </body>
 </html>
