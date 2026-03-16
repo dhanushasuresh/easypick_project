@@ -34,6 +34,7 @@ urlpatterns = [
     path('payment',views.payment_view,name='payment'),
     path('remove_wishlist/<int:id>',views.wishlist_remove,name='remove_wishlist'),
     path('toggle_wishlist/<int:id>/', views.toggle_wishlist, name='toggle_wishlist'),
+    path('select-order-address/<int:product_id>/<int:address_id>/', views.select_order_address, name='select_order_address'),
     path('search/',views.search_view,name='search'),
 ]
 if settings.DEBUG:

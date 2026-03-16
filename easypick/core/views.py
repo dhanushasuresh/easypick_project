@@ -2,12 +2,14 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from seller.models import ProductVariant
-from customer.models import Wishlist, WishlistItems
+from seller.models import *
+from customer.models import *
+from core.models import *
 
 def main_home_view(request):
     products=ProductVariant.objects.all().select_related('product').prefetch_related('images')
-    return render(request,'core/main_home.html',{"products":products})
+    category=Category.objects.all()
+    return render(request,'core/main_home.html',{"products":products,"category":category})
 def login_view(request):
     if request.method=="POST":
         email=request.POST.get('email')

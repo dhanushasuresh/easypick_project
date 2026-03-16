@@ -115,6 +115,28 @@ def address_list(request):
     address = Address.objects.filter(user=request.user)
     return render(request,'customer/address_list.html',{'address':address})
 
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from core.models import Address
+
+def select_order_address(request, product_id, address_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    address = get_object_or_404(Address, id=address_id, user=request.user)
+    request.session[f'order_address_{product_id}'] = address_id
+    
+    address_str = f"{address.house_no} {address.street}, {address.city}, {address.state}, {address.zip_code}"
+    
+    return JsonResponse({
+        'success': True,
+        'address_id': address_id,
+        'full_name': address.full_name,
+        'address_str': address_str,
+        'phone': getattr(request.user, 'phone_number', ''),
+        'reload_url': f"/customer/order_confirm/{product_id}/"
+    })
+
 def account_security_view(request):
     user=request.user
     if request.method=="POST":
@@ -349,21 +371,8 @@ def cart_order(request,id):
 @login_required
 def order_confirm_view(request, id):
     product = ProductVariant.objects.select_related('product').prefetch_related('images').get(id=id)
-    address = Address.objects.filter(user=request.user).first()
-    user = request.user
-
-    quantity =request.GET.get('qty', 1)
-
-    selling_price =product.selling_price
-
-    subtotal = selling_price * quantity 
-
-    return render(request,'customer/order_confirm.html',{
-        'product': product,
-        'address': address,
-        'user': user,
-        'quantity': quantity,
-        'subtotal': subtotal})
+    address=Address.objects.filter(user=request.user)
+    return render(request,'customer/order_confirm.html',{'product':product,'address':address})
 
 def payment_view(request):
     return render(request,'customer/payment.html')

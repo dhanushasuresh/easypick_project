@@ -37,55 +37,74 @@
             <h2 class="text-xl font-bold text-gray-800">Select Delivery Address</h2>
         </div>
 
-        <div class="custom-scrollbar overflow-y-auto max-h-[320px] px-2">
-            {% for x in address %}
-            <label class="flex items-start gap-4 p-4 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-0 group">
-                <div class="relative flex items-center justify-center mt-1">
-                    <input type="radio" name="selected_address" value="{{ x.id }}" 
-                           class="w-5 h-5 text-primary focus:ring-primary border-gray-300" 
-                           {% if forloop.first %}checked{% endif %}>
+        <div class="max-h-[400px] overflow-y-auto px-4 py-2 custom-scrollbar">
+            {% for addr in address %}
+            <label class="flex items-start gap-4 p-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-all group border border-gray-100 mb-3 block" data-address-id="{{ addr.id }}">
+                <div class="flex-shrink-0 mt-1">
+                    <input type="radio" name="selected_address" value="{{ addr.id }}" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 peer" id="addr{{ addr.id }}">
                 </div>
-                <div class="flex-1">
-                    <div class="flex items-center flex-wrap gap-2">
-                        <span class="font-bold text-gray-900">{{ x.full_name }}, {{ x.zip_code }}</span>
-                        <span class="bg-gray-100 text-[10px] font-extrabold text-gray-500 px-2 py-0.5 rounded uppercase tracking-wider">
-                            {{ x.address_type|default:"HOME" }}
+                <div class="flex-1 min-w-0 peer-checked:bg-primary/5 peer-checked:rounded-xl peer-checked:border-primary peer-checked:border-2">
+                    <div class="flex items-center flex-wrap gap-2 mb-1">
+                        <span class="font-bold text-gray-900 text-sm">{{ addr.full_name }}</span>
+                        <span class="bg-gray-100 text-[10px] font-bold px-2 py-0.5 rounded-full text-gray-600 uppercase">
+                            {{ addr.address_type|capfirst|default:"Home" }}
                         </span>
                     </div>
-                    <p class="text-sm text-gray-500 mt-1 leading-relaxed line-clamp-2">
-                        {{ x.house_no }}, {{ x.street }}, {{ x.landmark }}, {{ x.city }}, {{ x.state }}
+                    <p class="text-sm text-gray-600 line-clamp-2 mb-2">
+                        {{ addr.house_no|default:"" }} {{ addr.street }}, {{ addr.landmark|default:"" }}, {{ addr.city }}, {{ addr.state }} {{ addr.zip_code }}
                     </p>
+                    <p class="text-xs text-gray-500">{{ addr.phone_number }}</p>
                 </div>
             </label>
             {% empty %}
-            <div class="p-8 text-center text-gray-400">
-                <span class="material-symbols-outlined text-4xl mb-2">location_off</span>
-                <p>No addresses found.</p>
+            <div class="text-center py-12 text-gray-400">
+                <span class="material-symbols-outlined text-4xl block mb-3 mx-auto">location_off</span>
+                <p class="text-lg font-medium mb-2">No addresses saved</p>
+                <a href="{% url 'add_address' %}" target="_top" class="inline-flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-xl font-bold hover:bg-primary/90 transition-all">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                    Add New Address
+                </a>
             </div>
             {% endfor %}
         </div>
 
-        <div class="p-6 pt-8 bg-white border-t border-gray-100">
-            <h3 class="text-lg font-bold text-gray-800 mb-6">Use pincode to check delivery info</h3>
-            
-            <form class="flex gap-4 items-end mb-8">
-                <div class="flex-1 border-b-2 border-gray-200 transition-all focus-within:border-primary">
-                    <input type="text" placeholder="Enter pincode" 
-                           class="w-full border-none focus:ring-0 px-0 py-2 text-gray-700 placeholder:text-gray-400 bg-transparent">
-                </div>
-                <button type="submit" class="bg-[#94a3b8] hover:bg-primary text-white px-7 py-2 rounded-md font-bold text-sm transition-all shadow-sm">
-                    Submit
-                </button>
-            </form>
-
-            <button type="button" class="flex items-center gap-3 text-blue-600 font-semibold group hover:text-blue-700 transition-colors">
-                <div class="flex flex-col items-center">
-                    <span class="material-symbols-outlined text-blue-600 group-hover:scale-110 transition-transform">location_on</span>
-                    <div class="w-4 h-1 bg-yellow-400 rounded-full blur-[1px] -mt-1 opacity-80"></div>
-                </div>
-                <span class="text-sm">Use my current location</span>
+        <div class="p-6 pt-4 border-t border-gray-100">
+            {% if address %}
+            <button onclick="selectAddress()" 
+                class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-sm uppercase tracking-wide">
+                <span class="material-symbols-outlined">check_circle</span>
+                Use selected address
             </button>
+            {% else %}
+            <a href="{% url 'add_address' %}" target="_top" 
+                class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md block text-center text-sm uppercase tracking-wide">
+                Add new address
+            </a>
+            {% endif %}
         </div>
+
+        <script>
+            function selectAddress() {
+                const selected = document.querySelector('input[name=\"selected_address\"]:checked');
+                if (!selected) {
+                    alert('Please select an address');
+                    return;
+                }
+                // Notify parent window
+                window.parent.postMessage({
+                    type: 'selectAddress',
+                    addressId: selected.value
+                }, '*');
+            }
+            
+            // Auto-trigger if pre-selected
+            window.addEventListener('load', () => {
+                const radios = document.querySelectorAll('input[name=\"selected_address\"]');
+                if (radios.length > 0) {
+                    radios[0].checked = true;
+                }
+            });
+        </script>
     </div>
 
 </body>

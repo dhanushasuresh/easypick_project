@@ -1,278 +1,148 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>EasyPick | Order Summary</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#4b5d4f",
-                        "background-light": "#f7f7f7",
-                        "background-dark": "#181a18",
-                    },
-                    fontFamily: {
-                        "display": ["Inter", "sans-serif"]
-                    },
-                },
-            },
-        }
-    </script>
+    <title>EasyPick | Order Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .material-symbols-outlined { vertical-align: middle; }
     </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark text-[#141514]">
+<body class="bg-gray-50 text-gray-900">
 
-<header class="sticky top-0 z-50 w-full bg-[#4a5d4e] text-white px-6 md:px-12 py-4">
+<header class="sticky top-0 z-50 w-full bg-[#4a5d4e] text-white px-6 py-4 shadow-lg">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div class="bg-white/10 p-1.5 rounded-lg">
-                <span class="material-symbols-outlined text-white text-3xl">grid_view</span>
-            </div>
+            <span class="material-symbols-outlined text-3xl">grid_view</span>
             <h2 class="text-xl font-extrabold tracking-tight">EasyPick</h2>
         </div>
-
-        <nav class="hidden md:flex items-center gap-10">
-            <a class="text-sm font-semibold hover:text-white/80 transition-colors uppercase tracking-wider" href="#">About Us</a>
-            <a class="text-sm font-semibold hover:text-white/80 transition-colors uppercase tracking-wider" href="#">Contact</a>
-        </nav>
-
         <div class="flex items-center gap-4">
-            <div class="hidden lg:flex items-center bg-white/10 rounded-lg px-3 py-1.5 focus-within:bg-white/20 transition-all">
-                <span class="material-symbols-outlined text-white/70 text-xl">search</span>
-                <input class="bg-transparent border-none text-sm focus:ring-0 placeholder:text-white/50 w-48 text-white" placeholder="Search products..." type="text"/>
-            </div>
-            
-            <div class="flex items-center gap-1">
-                <a href="{% url 'cart' %}" class="inline-block">
-                    <button class="p-2 hover:bg-white/10 rounded-full transition-colors relative">
-                        <span class="material-symbols-outlined">shopping_cart</span>
-                        <span class="absolute top-1 right-1 bg-red-500 text-[10px] font-bold px-1 rounded-full border border-[#4a5d4e]">3</span>
-                    </button>
-                </a>
-                <a href="{% url 'wishlist' %}" class="inline-block">
-                    <button class="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center">
-                        <span class="material-symbols-outlined">favorite</span>
-                    </button>
-                </a>
-                
-                <div class="relative inline-block">
-                    <button id="accountButton" class="p-2 hover:bg-white/10 rounded-full transition-colors flex items-center outline-none">
-                        <span class="material-symbols-outlined text-white">person</span>
-                        <span class="material-symbols-outlined text-sm hidden md:inline text-white">expand_more</span>
-                    </button>
-                    <div id="userDropdown" class="absolute right-0 top-full pt-2 w-52 hidden z-[100]">
-                        <div class="bg-white rounded-xl shadow-2xl border border-gray-100 py-2 animate-fade-in">
-                            <div class="px-4 py-3 border-b border-gray-50">
-                                <p class="text-[10px] text-[#737874] font-bold uppercase tracking-wider">Account</p>
-                                <p class="text-sm font-bold text-gray-900 truncate">{{data.first_name}}</p>
-                            </div>
-                            <a href="{% url 'customer_dashboard' %}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#141514] hover:bg-gray-50 transition-colors">
-                                <span class="material-symbols-outlined text-lg text-gray-400">dashboard</span>
-                                My Dashboard
-                            </a>
-                            <a href="/customer/profile/" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#141514] hover:bg-gray-50 transition-colors">
-                                <span class="material-symbols-outlined text-lg text-gray-400">account_circle</span>
-                                My Profile
-                            </a>
-                            <div class="my-2 border-t border-gray-100"></div>
-                            <button onclick="confirmLogout()" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-bold">
-                                <span class="material-symbols-outlined text-lg">logout</span>
-                                Sign Out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="p-2 md:hidden hover:bg-white/10 rounded-full transition-colors">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-            </div>
+            <button class="p-2 hover:bg-white/10 rounded-full relative">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                <span class="absolute top-1 right-1 bg-red-500 text-[10px] font-bold px-1.5 rounded-full border border-[#4a5d4e]">3</span>
+            </button>
+            <button class="p-2 hover:bg-white/10 rounded-full"><span class="material-symbols-outlined">person</span></button>
         </div>
     </div>
 </header>
 
-<main class="max-w-7xl mx-auto px-4 md:px-12 py-8">
-    <div class="flex justify-center items-center mb-8 space-x-4">
-        
-        
-        <div class="flex items-center text-primary">
-            <span class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs mr-2">1</span>
-            <span class="text-xs font-bold uppercase tracking-wider">Order Summary</span>
+<main class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-center items-center mb-10 space-x-6">
+        <div class="flex items-center text-[#4a5d4e]">
+            <span class="w-8 h-8 rounded-full bg-[#4a5d4e] text-white flex items-center justify-center text-sm font-bold mr-3 shadow-md">1</span>
+            <span class="text-xs font-bold uppercase tracking-widest">Order Summary</span>
         </div>
-        <div class="h-[1px] w-12 bg-gray-300"></div>
+        <div class="h-[2px] w-16 bg-gray-200"></div>
         <div class="flex items-center text-gray-400">
-            <span class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-xs mr-2">2</span>
-            <span class="text-xs font-bold uppercase tracking-wider">Payment</span>
+            <span class="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center text-sm font-bold mr-3">2</span>
+            <span class="text-xs font-bold uppercase tracking-widest">Payment</span>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <div class="lg:col-span-2 space-y-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
             
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex justify-between items-start">
-
-{% if address %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex justify-between items-start">
+                {% for x in address %}
                 <div>
-                <h3 class="text-sm font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
-                Deliver to:
-                <span class="bg-gray-100 text-[10px] px-2 py-0.5 rounded text-gray-600">HOME</span>
-                </h3>
-
-                <p class="font-bold text-gray-900">{{ address.full_name }}</p>
-
-                <p class="text-sm text-gray-600 mt-1">
-                {{ address.house_no }} {{ address.street }}, {{ address.city }}, {{ address.state }}, {{ address.zip_code }}
-                </p>
-
-                <p class="text-sm font-bold mt-2">{{ user.phone_number }}</p>
+                    <div class="flex items-center gap-2 mb-3">
+                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Deliver to:</h3>
+                        <span class="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold">HOME</span>
+                    </div>
+                    <p class="font-bold text-gray-900 text-lg">{{x.full_name}}</p>
+                    
+                    <p class="text-sm text-gray-600 mt-1 leading-relaxed">123 Tech Street, Silicon Valley, CA 94025</p>
+                    
                 </div>
-
-                <button onclick="openAddressPanel()"
-                class="text-primary font-bold text-sm px-4 py-2 border border-gray-200 rounded hover:bg-gray-50">
-                Change
+                <button onclick="togglePanel(true)" class="text-[#4a5d4e] font-bold text-sm px-5 py-2.5 border-2 border-gray-100 rounded-lg hover:border-[#4a5d4e] hover:bg-gray-50 transition-all">
+                    Change
                 </button>
+                {% endfor %}
+            </div>
 
-                {% else %}
-
-                <div>
-                <p class="text-gray-600">No address added yet</p>
-                </div>
-
-                <button onclick="openAddressPanel()"
-                class="text-primary font-bold text-sm px-4 py-2 border border-gray-200 rounded hover:bg-gray-50">
-                Add Address
-                </button>
-
-                {% endif %}
-
-                </div>
-
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                <div class="flex flex-col md:flex-row gap-6">
-                    <div class="w-32 h-32 flex-shrink-0 mx-auto md:mx-0">
-                        {% with product.images.all|first as primary_img %}
-                        <img src="{{ primary_img.image_url.url }}" alt="{{ product.product.name }}" class="w-full h-full object-contain">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="w-full md:w-40 h-40 bg-gray-50 rounded-lg flex items-center justify-center p-4">
+                        {% with product.images.all|first as primary_image %}
+                            <img src="{{ primary_image.image_url.url }}" class="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-110" alt="{{x.product.name}}">
                         {% endwith %}
                     </div>
                     <div class="flex-grow">
-                        <h2 class="text-lg font-medium text-gray-900 leading-tight">{{ product.product.name }}</h2>
-                        {% with product.variantattributebridge_set.all as attrs %}
-                        {% if attrs %}
-                        <p class="text-xs text-gray-500 mt-1">
-                            {% for attr in attrs %}
-                            {{ attr.option.attribute.name }}: {{ attr.option.value }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </p>
-                        {% endif %}
-                        {% endwith %}
+                        <div class="flex justify-between items-start">
+                            <h2 class="text-xl font-bold text-gray-900">{{product.product.name}}</h2>
+                            <span class="text-[#4a5d4e] font-black text-xs italic tracking-tighter border-2 border-[#4a5d4e] px-2 py-0.5 rounded">ASSURED</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">{{product.product.description}}</p>
                         
-                        <div class="flex items-center gap-2 mt-2">
-                            {% with product.product.reviews.all as reviews %}
-                            {% if reviews %}
-                            {% with reviews.first.rating as avg_rating %}
-                            <span class="bg-green-700 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center font-bold">{{ avg_rating }} <span class="material-symbols-outlined text-[10px] ml-0.5" style="font-variation-settings: 'FILL' 1;">star</span></span>
-                            <span class="text-xs text-gray-400 font-bold">({{ reviews.count }})</span>
-                            {% endwith %}
-                            {% else %}
-                            <span class="text-xs text-gray-400 font-bold">No reviews yet</span>
-                            {% endif %}
-                            {% endwith %}
-                            <span class="text-primary font-bold text-xs ml-2 italic">Assured</span>
+                        <div class="flex items-center gap-2 mt-3">
+                            <span class="bg-green-700 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center font-bold">4.5 <span class="material-symbols-outlined text-[10px] ml-1" style="font-variation-settings: 'FILL' 1;">star</span></span>
+                            <span class="text-xs text-gray-400 font-bold">(1,248 Reviews)</span>
                         </div>
 
-                        <div class="flex items-baseline gap-2 mt-4">
-                            <span class="text-gray-400 line-through text-sm">₹{{ product.mrp }}</span>
-                            <span class="text-xl font-bold text-gray-900">₹{{ product.selling_price }}</span>
-                            {% if discount_percentage > 0 %}
-                            <span class="text-green-600 text-sm font-bold">{{ discount_percentage|floatformat:0 }}% Off</span>
-                            {% endif %}
+                        <div class="flex items-baseline gap-3 mt-6">
+                            
+                            <span class="text-2xl font-black text-gray-900">₹{{product.selling_price}}</span>
+                            <span class="text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded">50% Off</span>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Or Pay ₹{{ product.selling_price }} + <span class="text-yellow-600 font-bold">37 SuperCoins</span></p>
-                        
-                        <p class="text-sm mt-4">Delivery by <span class="font-bold">Mar 15, Sun</span></p>
+                        <p class="text-sm mt-4 text-gray-700">Delivery by <span class="font-bold text-green-700">Sunday, Mar 22</span></p>
                     </div>
                 </div>
                 
-                <div class="mt-6 flex items-center gap-4 border-t border-gray-50 pt-4">
-                    <div class="flex items-center border border-gray-200 rounded px-2">
-                        <span class="text-xs mr-2">Qty:</span>
-                        <select onchange="updateQty(this.value)" class="border-none text-sm font-bold focus:ring-0 cursor-pointer py-1">
-
-                            <option value="1" {% if quantity == 1 %}selected{% endif %}>1</option>
-                            <option value="2" {% if quantity == 2 %}selected{% endif %}>2</option>
-                            <option value="3" {% if quantity == 3 %}selected{% endif %}>3</option>
-
+                <div class="mt-8 flex items-center gap-6 border-t border-gray-50 pt-6">
+                    <div class="flex items-center bg-gray-50 rounded-lg px-3 py-1 border border-gray-200">
+                        <span class="text-xs font-bold text-gray-500 mr-2">Qty:</span>
+                        <select class="bg-transparent border-none text-sm font-bold focus:ring-0 cursor-pointer py-1">
+                            <option>1</option><option>2</option><option>3</option>
                         </select>
                     </div>
-                    <button class="text-sm font-bold hover:text-red-600 transition-colors uppercase">Remove</button>
+                    <button class="text-xs font-bold text-gray-400 hover:text-red-600 uppercase tracking-widest transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-lg">delete</span> Remove
+                    </button>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 flex items-center justify-between">
+            <div class="bg-blue-50/50 rounded-xl p-4 flex items-center justify-between border border-blue-100">
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-gray-400">mail</span>
-                    <span class="text-sm text-gray-600">Email ID required for delivery</span>
+                    <span class="material-symbols-outlined text-blue-500">mail</span>
+                    <span class="text-sm text-blue-700 font-medium">Order updates will be sent to your registered email.</span>
                 </div>
-                <button class="text-primary text-sm font-bold uppercase">Add Email</button>
+                <button class="text-blue-600 text-xs font-bold uppercase tracking-widest hover:underline">Update</button>
             </div>
         </div>
 
         <div class="lg:col-span-1">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-100 sticky top-24">
-                <h3 class="p-4 border-b border-gray-100 font-bold text-gray-500 uppercase text-xs tracking-wider">Price Details</h3>
-                <div class="p-4 space-y-4">
-                    <div class="flex justify-between text-sm">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 sticky top-28 overflow-hidden">
+                <h3 class="p-5 border-b border-gray-50 font-black text-gray-400 uppercase text-xs tracking-[0.2em]">Price Details</h3>
+                <div class="p-6 space-y-5">
+                    <div class="flex justify-between text-sm text-gray-600">
                         <span>Price (1 item)</span>
-                        <span>₹{{ product.mrp }}</span>
+                        <span class="font-semibold text-gray-900">₹4,999</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span class="flex items-center gap-1">Platform Fee <span class="material-symbols-outlined text-xs">info</span></span>
+                        <span class="font-semibold text-gray-900">₹7</span>
                     </div>
                     <div class="flex justify-between text-sm">
-                        <span class="flex items-center gap-1">Fees <span class="material-symbols-outlined text-xs">expand_more</span></span>
-                        <span>₹7</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="flex items-center gap-1 text-primary font-medium">Discounts <span class="material-symbols-outlined text-xs">expand_more</span></span>
-                        {% if discount_amount > 0 %}
-                        <span class="text-green-600 font-medium">- ₹{{ discount_amount|floatformat:0 }}</span>
-                        {% else %}
-                        <span class="text-green-600 font-medium">- ₹0</span>
-                        {% endif %}
+                        <span class="text-green-600 font-bold">Discount</span>
+                        <span class="text-green-600 font-bold">- ₹2,500</span>
                     </div>
                     
-                    <div class="pt-4 border-t border-dashed border-gray-200 flex justify-between items-center">
-                        <span class="text-lg font-bold">Total Amount</span>
-                        <span class="text-lg font-bold">₹{{subtotal}}</span>
+                    <div class="pt-6 border-t-2 border-dashed border-gray-100 flex justify-between items-center">
+                        <span class="text-xl font-black text-gray-900">Total Amount</span>
+                        <span class="text-xl font-black text-[#4a5d4e]">₹2,506</span>
                     </div>
-                </div>
-                
-                {% if discount_amount > 0 %}
-                <div class="bg-green-50 p-3 mx-4 mb-4 rounded-lg">
-                    <p class="text-green-700 text-sm font-bold flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">loyalty</span>
-                        You'll save ₹{{ discount_amount|floatformat:0 }} on this order!
-                    </p>
-                </div>
-                {% endif %}
 
-                <div class="p-4 border-t border-gray-100 flex items-center gap-4">
-                    <div class="flex flex-col">
-                        <span class="text-[10px] text-gray-400 line-through">₹{{ product.mrp }}</span>
-                        <span class="text-lg font-black">₹{{ subtotal }}</span>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-100 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-green-600">loyalty</span>
+                        <p class="text-green-700 text-xs font-bold leading-tight">You are saving ₹2,500 on this order!</p>
                     </div>
-                    <a href="{% url 'payment' %}" class="flex-grow bg-[#fb641b] hover:bg-[#e65a17] text-white font-bold py-3 px-8 rounded shadow-md uppercase text-sm transition-all text-center">
-                        Continue
+
+                    <a href="#" class="block w-full bg-[#fb641b] text-white text-center font-black py-4 rounded-xl shadow-xl shadow-orange-200 hover:bg-[#e65a17] hover:-translate-y-0.5 transition-all uppercase text-sm tracking-widest">
+                        Continue to Payment
                     </a>
                 </div>
             </div>
@@ -280,68 +150,46 @@
     </div>
 </main>
 
-<!-- Address Side Panel with iframe -->
-<div id="addressPanel" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[100]">
+<div id="sidePanel" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-500 z-[100]">
     <div class="h-full flex flex-col">
-        <div class="p-6 pb-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 class="text-xl font-bold text-gray-800">Select Delivery Address</h2>
-            <button onclick="closeAddressPanel()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <div class="p-6 border-b flex items-center justify-between">
+            <h2 class="text-xl font-black text-gray-900">Saved Addresses</h2>
+            <button onclick="togglePanel(false)" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <span class="material-symbols-outlined text-gray-500">close</span>
             </button>
         </div>
-        
-        <iframe id="addressIframe" src="{% url 'address_list' %}" class="flex-1 w-full border-0"></iframe>
+        <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div class="p-4 border-2 border-[#4a5d4e] rounded-xl bg-green-50/30">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-sm font-bold text-gray-900">Office</span>
+                    <span class="bg-[#4a5d4e] text-white text-[10px] px-1.5 rounded uppercase font-bold">Selected</span>
+                </div>
+                <p class="text-sm text-gray-600 leading-relaxed">456 Corporate Way, Tech Hub, Suite 200, SF, CA</p>
+            </div>
+            <button class="w-full py-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 font-bold text-sm hover:border-[#4a5d4e] hover:text-[#4a5d4e] transition-all">
+                + Add New Address
+            </button>
+        </div>
     </div>
+</div>
 
-<!-- Overlay -->
-<div id="addressOverlay" onclick="closeAddressPanel()" class="fixed inset-0 bg-black/50 hidden z-[90]"></div>
+<div id="overlay" onclick="togglePanel(false)" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-[90]"></div>
 
 <script>
-    function confirmLogout() {
-        if (confirm("Are you sure you want to sign out?")) {
-            window.location.href = "/logout";
+    function togglePanel(isOpen) {
+        const panel = document.getElementById('sidePanel');
+        const overlay = document.getElementById('overlay');
+        if (isOpen) {
+            panel.classList.remove('translate-x-full');
+            overlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        } else {
+            panel.classList.add('translate-x-full');
+            overlay.classList.add('hidden');
+            document.body.style.overflow = '';
         }
     }
-   
-    const btn = document.getElementById('accountButton');
-    const menu = document.getElementById('userDropdown');
-
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.toggle('hidden');
-    });
-
-    window.addEventListener('click', (e) => {
-        if (!menu.contains(e.target) && !btn.contains(e.target)) {
-            menu.classList.add('hidden');
-        }
-    });
-
-    document.addEventListener('click', function (e) {
-        const wishBtn = e.target.closest('.wishlist-btn');
-        if (wishBtn) {
-            e.preventDefault();
-            wishBtn.classList.toggle('fav-active');
-        }
-    });
-
-    // Address Panel Functions
-    function openAddressPanel() {
-        document.getElementById('addressPanel').classList.remove('translate-x-full');
-        document.getElementById('addressOverlay').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeAddressPanel() {
-        document.getElementById('addressPanel').classList.add('translate-x-full');
-        document.getElementById('addressOverlay').classList.add('hidden');
-        document.body.style.overflow = '';
-    }
-    function updateQty(qty){
-    const url = new URL(window.location.href);
-    url.searchParams.set('qty', qty);
-    window.location.href = url;
-}
 </script>
+
 </body>
 </html>
