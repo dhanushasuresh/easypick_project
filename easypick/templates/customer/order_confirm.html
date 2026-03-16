@@ -47,21 +47,32 @@
         <div class="lg:col-span-2 space-y-6">
             
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex justify-between items-start">
-                {% for x in address %}
+                {% with address|first as first_address %}
+                {% if first_address %}
                 <div>
                     <div class="flex items-center gap-2 mb-3">
                         <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Deliver to:</h3>
-                        <span class="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold">HOME</span>
+                        <span class="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold">{{ first_address.address_type|upper|default:"HOME" }}</span>
                     </div>
-                    <p class="font-bold text-gray-900 text-lg">{{x.full_name}}</p>
+                    <p class="font-bold text-gray-900 text-lg">{{ first_address.full_name }}</p>
                     
-                    <p class="text-sm text-gray-600 mt-1 leading-relaxed">123 Tech Street, Silicon Valley, CA 94025</p>
+                    <p class="text-sm text-gray-600 mt-1 leading-relaxed">{{ first_address.house_no }} {{ first_address.street }}, {{ first_address.landmark }}, {{ first_address.city }}, {{ first_address.state }} {{ first_address.zip_code }}</p>
                     
+                    <p class="text-xs text-gray-500 mt-2">{{ first_address.phone_number }}</p>
                 </div>
                 <button onclick="togglePanel(true)" class="text-[#4a5d4e] font-bold text-sm px-5 py-2.5 border-2 border-gray-100 rounded-lg hover:border-[#4a5d4e] hover:bg-gray-50 transition-all">
                     Change
                 </button>
-                {% endfor %}
+                {% else %}
+                <div>
+                    <p class="text-gray-500 text-lg">No delivery address saved</p>
+                    <p class="text-sm text-gray-400 mt-1">Add address to continue checkout</p>
+                </div>
+                <button onclick="togglePanel(true)" class="bg-[#4a5d4e] text-white font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-[#3a4b3e] transition-all shadow-md">
+                    Add Address
+                </button>
+                {% endif %}
+                {% endwith %}
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -153,22 +164,38 @@
 <div id="sidePanel" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-500 z-[100]">
     <div class="h-full flex flex-col">
         <div class="p-6 border-b flex items-center justify-between">
-            <h2 class="text-xl font-black text-gray-900">Saved Addresses</h2>
+<h2 class="text-xl font-black text-gray-900">Select Delivery Address</h2>
             <button onclick="togglePanel(false)" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <span class="material-symbols-outlined text-gray-500">close</span>
             </button>
         </div>
         <div class="flex-1 overflow-y-auto p-6 space-y-4">
-            <div class="p-4 border-2 border-[#4a5d4e] rounded-xl bg-green-50/30">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="text-sm font-bold text-gray-900">Office</span>
-                    <span class="bg-[#4a5d4e] text-white text-[10px] px-1.5 rounded uppercase font-bold">Selected</span>
+            {% for addr in address %}
+            <div class="address-item p-4 border rounded-xl hover:shadow-md transition-all cursor-pointer {% if forloop.first %}ring-2 ring-[#4a5d4e] bg-blue-50/50 selected-address{% endif %}" data-address-id="{{ addr.id }}">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="w-5 h-5 border-2 rounded-full flex items-center justify-center text-xs font-bold radio-dot {% if forloop.first %}bg-[#4a5d4e] text-white border-[#4a5d4e]{% else %}border-gray-300 text-gray-400{% endif %}">✓</span>
+                    <span class="text-sm font-bold text-gray-900">{{ addr.address_type|capfirst|default:"Home" }}</span>
                 </div>
-                <p class="text-sm text-gray-600 leading-relaxed">456 Corporate Way, Tech Hub, Suite 200, SF, CA</p>
+                <p class="font-semibold text-gray-900 mb-1">{{ addr.full_name }}</p>
+                <p class="text-sm text-gray-600 leading-relaxed">{{ addr.house_no }}, {{ addr.street }}{% if addr.landmark %}, {{ addr.landmark }}{% endif %}, {{ addr.city }}, {{ addr.state }} - {{ addr.zip_code }}</p>
+                <p class="text-xs text-gray-500 mt-2">{{ addr.phone_number }}</p>
             </div>
-            <button class="w-full py-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 font-bold text-sm hover:border-[#4a5d4e] hover:text-[#4a5d4e] transition-all">
-                + Add New Address
-            </button>
+            {% empty %}
+            <div class="text-center py-16 text-gray-400">
+                <span class="material-symbols-outlined text-5xl block mb-4">location_off</span>
+                <p class="text-lg font-medium mb-6">No addresses saved yet</p>
+                <a href="{% url 'add_address' %}" class="inline-flex items-center gap-2 bg-[#4a5d4e] hover:bg-[#3a4b3e] text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all">
+                    <span class="material-symbols-outlined">add_location_alt</span>
+                    Add New Address
+                </a>
+            </div>
+            {% endfor %}
+            <div class="p-4 pt-0">
+                <button onclick="useSelectedAddress()" class="w-full bg-[#4a5d4e] hover:bg-[#3a4b3e] text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md uppercase tracking-wide text-sm flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Use this address
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -176,7 +203,7 @@
 <div id="overlay" onclick="togglePanel(false)" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-[90]"></div>
 
 <script>
-    function togglePanel(isOpen) {
+function togglePanel(isOpen) {
         const panel = document.getElementById('sidePanel');
         const overlay = document.getElementById('overlay');
         if (isOpen) {
@@ -189,6 +216,63 @@
             document.body.style.overflow = '';
         }
     }
+
+let selectedAddressId = null;
+
+document.querySelectorAll('.address-item').forEach(item => {
+    item.addEventListener('click', function() {
+        document.querySelectorAll('.address-item').forEach(i => i.classList.remove('ring-2', 'ring-[#4a5d4e]', 'bg-blue-50/50', 'selected-address'));
+        document.querySelectorAll('.radio-dot').forEach(dot => {
+            dot.classList.remove('bg-[#4a5d4e]', 'text-white', 'border-[#4a5d4e]');
+            dot.classList.add('border-gray-300', 'text-gray-400');
+        });
+        
+        this.classList.add('ring-2', 'ring-[#4a5d4e]', 'bg-blue-50/50', 'selected-address');
+        const dot = this.querySelector('.radio-dot');
+        dot.classList.remove('border-gray-300', 'text-gray-400');
+        dot.classList.add('bg-[#4a5d4e]', 'text-white', 'border-[#4a5d4e]');
+        
+        selectedAddressId = this.dataset.addressId;
+    });
+});
+
+function useSelectedAddress() {
+    if (!selectedAddressId) {
+        alert('Please select an address first');
+        return;
+    }
+    
+    // Find the selected address data
+    const selectedItem = document.querySelector(`[data-address-id="${selectedAddressId}"]`);
+    const name = selectedItem.querySelector('p.font-semibold').textContent;
+    const fullAddress = selectedItem.querySelector('p.text-sm').textContent;
+    
+    // Update main address display
+    const mainSection = document.querySelector('.bg-white.rounded-xl.p-6');
+    const nameEl = mainSection.querySelector('p.font-bold.text-lg');
+    const addressEl = mainSection.querySelector('p.text-sm');
+    const phoneEl = mainSection.querySelector('p.text-xs');
+    
+    nameEl.textContent = name;
+    addressEl.textContent = fullAddress;
+    
+    // Update type badge
+    const typeSpan = mainSection.querySelector('span.bg-blue-50');
+    typeSpan.textContent = selectedItem.querySelector('span.text-sm.font-bold').textContent;
+    
+    // Close panel
+    togglePanel(false);
+    
+    // Success feedback
+    const useButton = event.target;
+    const originalHTML = useButton.innerHTML;
+    useButton.innerHTML = '✓ Address Updated';
+    useButton.classList.add('bg-green-600');
+    setTimeout(() => {
+        useButton.innerHTML = originalHTML;
+        useButton.classList.remove('bg-green-600');
+    }, 1500);
+}
 </script>
 
 </body>
