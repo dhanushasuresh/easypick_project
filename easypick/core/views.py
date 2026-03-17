@@ -2,6 +2,10 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.signals import user_logged_in
+from django.dispatch import receiver
+from django.core.mail import send_mail
+from django.core.mail import send_mail
 from seller.models import *
 from customer.models import *
 from core.models import *
@@ -41,7 +45,6 @@ def admin_view(request):
     return render(request,'admin/admin_login.html')
 
 
-
 def shop_view(request):
     product = ProductVariant.objects.select_related('product').prefetch_related('images').all()
     
@@ -79,9 +82,36 @@ def shop_view(request):
         'in_wishlist_ids': in_wishlist_ids
     })
 
-
-
 def logout_view(request):
     logout(request)
     messages.success(request,"Logout")
     return redirect("login")
+
+def about_view(request):
+    return render(request,'core/about.html')
+
+def contact_view(request):
+    return render(request,'core/contact.html')
+
+# @receiver(user_logged_in)
+# def login_mail(sender, request, user, **kwargs):
+#     subject = "Login Alert - Your Account"
+    
+#     message = f"""
+# Hi {user.username},
+
+# You have successfully logged into your account.
+
+# If this wasn't you, please secure your account immediately.
+
+# Thank you,
+# Your E-commerce Team
+# """
+
+#     send_mail(
+#         subject,
+#         message,
+#         'dhanushasuresh2026@gmail.com',
+#         [user.email],
+#         fail_silently=False,
+#     )

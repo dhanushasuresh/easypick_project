@@ -83,56 +83,47 @@
             <div class="flex flex-col lg:flex-row gap-12 mt-8">
                 
                 <aside class="w-full lg:w-64 flex-shrink-0">
-                    <div class="sticky top-24 space-y-8">
-                        
-                        <div class="border-b border-gray-200 pb-8">
-                            <h3 class="font-bold text-[#141514] mb-4 flex items-center justify-between">
-                                Price Range
-                                <span class="material-symbols-outlined text-sm">tune</span>
-                            </h3>
-                            <form id="priceFilterForm" action="" method="GET" class="space-y-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="relative flex-1">
-                                        <span class="absolute left-2 top-2.5 text-[#737874] text-xs">$</span>
-                                        <input type="number" name="min_price" id="min_price" placeholder="Min" 
-                                               class="w-full pl-5 pr-2 py-2 text-sm border-gray-200 rounded-lg focus:ring-primary/20 focus:border-primary">
-                                    </div>
-                                    <span class="text-gray-400">—</span>
-                                    <div class="relative flex-1">
-                                        <span class="absolute left-2 top-2.5 text-[#737874] text-xs">$</span>
-                                        <input type="number" name="max_price" id="max_price" placeholder="Max" 
-                                               class="w-full pl-5 pr-2 py-2 text-sm border-gray-200 rounded-lg focus:ring-primary/20 focus:border-primary">
-                                    </div>
-                                </div>
-                                
-                                <div class="flex flex-wrap gap-2 pt-1">
-                                    <button type="button" onclick="setPrice(0, 50)" class="text-[10px] font-bold px-2 py-1 bg-gray-100 rounded-md hover:bg-primary hover:text-white transition-all text-[#737874]">Under $50</button>
-                                    <button type="button" onclick="setPrice(50, 150)" class="text-[10px] font-bold px-2 py-1 bg-gray-100 rounded-md hover:bg-primary hover:text-white transition-all text-[#737874]">$50-$150</button>
-                                    <button type="button" onclick="setPrice(150, 500)" class="text-[10px] font-bold px-2 py-1 bg-gray-100 rounded-md hover:bg-primary hover:text-white transition-all text-[#737874]">$150+</button>
-                                </div>
-                                <button type="submit" class="w-full bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-[#3d4b40] transition-colors shadow-sm text-sm">
-                                    Apply Filter
-                                </button>
-                            </form>
-                        </div>
 
-                        <div class="border-b border-gray-200 pb-6">
-                            <h3 class="font-bold text-[#141514] mb-4 flex items-center justify-between">
-                                Style
-                                <span class="material-symbols-outlined text-sm">expand_more</span>
-                            </h3>
-                            <div class="space-y-2">
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/20" type="checkbox"/>
-                                    <span class="text-sm text-[#737874] group-hover:text-primary transition-colors">Modern Minimalist</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/20" type="checkbox"/>
-                                    <span class="text-sm text-[#737874] group-hover:text-primary transition-colors">Industrial</span>
-                                </label>
-                            </div>
-                        </div>
+                    <form method="GET">
+
+                    <div class="border-b border-gray-200 pb-6">
+                    <h3 class="font-bold text-[#141514] mb-4 flex items-center justify-between cursor-pointer">
+                    Price Range
+                    <span class="material-symbols-outlined text-sm">expand_more</span>
+                    </h3>
+
+                    <div class="flex items-center gap-3 mb-4">
+
+                    <div class="relative flex-1">
+                    <span class="absolute left-3 top-2 text-[#737874] text-xs">$</span>
+                    <input name="min_price"
+                    class="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded"
+                    placeholder="Min"
+                    type="number"
+                    value="{{ min_price }}">
                     </div>
+
+                    <span class="text-[#737874]">-</span>
+
+                    <div class="relative flex-1">
+                    <span class="absolute left-3 top-2 text-[#737874] text-xs">$</span>
+                    <input name="max_price"
+                    class="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded"
+                    placeholder="Max"
+                    type="number"
+                    value="{{ max_price }}">
+                    </div>
+
+                    </div>
+
+                    <button type="submit" class="bg-black text-white px-4 py-1 rounded text-sm">
+                    Apply
+                    </button>
+
+                    </div>
+
+                    </form>
+
                 </aside>
 
                 <div class="flex-1">
@@ -144,16 +135,23 @@
                             </p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="text-sm text-[#737874]">Sort by:</span>
-                            <div class="relative">
-                                <select class="appearance-none bg-transparent pl-3 pr-8 py-1.5 text-sm font-semibold text-[#141514] border border-gray-200 rounded-lg focus:ring-primary/20 focus:border-primary cursor-pointer">
-                                    <option>Featured</option>
-                                    <option>Price: Low to High</option>
-                                    <option>Price: High to Low</option>
+
+                                <label class="text-sm font-medium text-[#737874]" for="sort">Sort by:</label>
+
+
+
+                                <select name="sort" onchange="this.form.submit()"
+                                    class="form-select border-none bg-[#f2f3f2] rounded-lg text-sm focus:ring-primary py-2 pl-3 pr-8 cursor-pointer">
+
+                                    <option value="new_arrival">Newest Arrivals</option>
+                                    <option value="low">Price: Low to High</option>
+                                    <option value="high">Price: High to Low</option>
+
                                 </select>
-                                <span class="absolute right-2 top-2 pointer-events-none material-symbols-outlined text-sm">expand_more</span>
+
+
+
                             </div>
-                        </div>
                     </div>
 
                     {% if products %}

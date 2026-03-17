@@ -156,8 +156,12 @@
                                         {% endwith %}
                                     </td>
                                     <td class="px-6 py-4 text-right space-x-2">
-                                        <button class="p-1.5 text-primary/60 hover:text-primary transition-colors"><span class="material-symbols-outlined text-xl">edit</span></button>
+                                        
+                                            <span class="material-symbols-outlined text-xl">edit</span>
+                                        
+                                        <a href="{% url 'delete_category' category.id %}" class="p-1.5 text-primary/60 hover:text-primary transition-colors inline-block"></a>
                                         <button class="p-1.5 text-red-400 hover:text-red-600 transition-colors"><span class="material-symbols-outlined text-xl">delete</span></button>
+                                        </a>
                                     </td>
                                 </tr>
                                 {% empty %}

@@ -10,6 +10,11 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.db.models import Q
 from decimal import Decimal, InvalidOperation
+from django.http import JsonResponse
+from django.contrib.auth.signals import user_logged_in
+from django.dispatch import receiver
+from django.core.mail import send_mail
+
 
 
 
@@ -29,7 +34,6 @@ def customer_register_view(request):
             messages.error(request,'email already exists')
             return redirect('customer_register')
         user = User.objects.create_user( username=email,email=email, password=password, first_name=first_name, last_name=last_name )
-        
         messages.success(request, "Account created successfully")
         return redirect('login')
     return render(request,'core/customer_registartion.html')
@@ -115,9 +119,6 @@ def address_list(request):
     address = Address.objects.filter(user=request.user)
     return render(request,'customer/address_list.html',{'address':address})
 
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from core.models import Address
 
 def select_order_address(request, product_id, address_id):
     if not request.user.is_authenticated:
@@ -201,19 +202,18 @@ def toggle_wishlist(request, id):
     
     wishlist, created = Wishlist.objects.get_or_create(customer=request.user)
     
-    # Check if item already exists
     existing_item = WishlistItems.objects.filter(
         wishlist=wishlist,
         product=variant
     ).first()
     
     if existing_item:
-        # Remove it
+       
         existing_item.delete()
         status = "removed"
         in_wishlist = False
     else:
-        # Add it
+        
         WishlistItems.objects.create(
             wishlist=wishlist,
             product=variant
@@ -285,9 +285,6 @@ def delete_account(request):
     if request.method=="POST":
         user=User
         password=request.POST.get('password_confirm')
-        
-            
-
     return render(request,'core/account_deletion_confirmation.html')
 
 def delete_account_confirmation(request):
@@ -296,9 +293,27 @@ def delete_account_confirmation(request):
     messages.success(request,'deleted account')
     return redirect('/')
 
-def product_view(request,id):
+def category_view(request,id):
     product=SubCategory.objects.get(id=id)
-    return render(request,'core/category.html',{'product':product})
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    sort = request.GET.get('sort')
+
+    if min_price:
+            products = products.filter(selling_price__gte=min_price)
+    if max_price:
+            products = products.filter(selling_price__lte=max_price)
+        
+
+    if sort == "new_arrival":
+        products = products.order_by("-id")
+    elif sort == "low":
+        products = products.order_by("selling_price")
+    elif sort == "high":
+        products = products.order_by("-selling_price")
+    elif sort == "name":
+        products = products.order_by("product__name")
+    return render(request,'core/category.html',{'products':product})
 
 def subcategory_view(request,id):
     product=ProductVariant.objects.select_related('product').prefetch_related('images').get(id=id)
@@ -379,9 +394,7 @@ def order_confirm_view(request, id):
     selling_price = product.selling_price
     subtotal = selling_price * quantity
     
-    mrp = getattr(product, 'mrp', selling_price)
-    discount_amount = mrp - selling_price
-    discount_percentage = (discount_amount / mrp * 100) if mrp > 0 else 0
+    
     
     context = {
         'product': product,
@@ -389,9 +402,6 @@ def order_confirm_view(request, id):
         'quantity': quantity,
         'subtotal': subtotal,
         'selling_price': selling_price,
-        'discount_amount': discount_amount,
-        'discount_percentage': discount_percentage,
-        'product_id': id
     }
     return render(request, 'customer/order_confirm.html', context)
 
@@ -409,3 +419,69 @@ def search_view(request):
         product=ProductVariant.objects.none()
     return render(request,'customer/search_result.html',{'product':product, 'query': search_product})
 
+def review_view(request, id):
+    product = get_object_or_404(Product, id=id)
+    product_reviews = Review.objects.filter(product=product).prefetch_related('images')
+    if request.method == "POST":
+        rating = request.POST.get('rating')
+        comments = request.POST.get('comments')
+        images = request.FILES.getlist('images')
+
+        review = Review.objects.create(
+            product=product,
+            user=request.user,
+            rating=rating,
+            comments=comments
+        )
+
+        for img in images:
+            ReviewImage.objects.create(
+                review=review,
+                image=img
+            )
+
+        return redirect('single', id=product.id)
+
+    context = {
+        'product': product,
+        'reviews': product_reviews,
+        'user':request.user
+    }
+
+    return render(request, 'customer/single.html', context)
+
+
+
+
+
+# @receiver(user_logged_in)
+# def register_mail(sender, request, user, **kwargs):
+#     subject = "Welcome to EasyPick 🎉"
+
+#     message = f"""
+#     Hi {user.username},
+
+#     Welcome to EasyPick! 🎉
+
+#     Your account has been successfully created.
+
+#     You can now:
+#     - Browse products 🛍️
+#     - Add items to cart 🛒
+#     - Place orders 🚀
+
+#     If you have any questions, feel free to contact us.
+
+#     Happy Shopping!
+
+#     Regards,  
+#     EasyPick Team
+#     """
+
+#     send_mail(
+#             subject,
+#             message,
+#             'dhanushasuresh2026@gmail.com',
+#             [user.email],
+#             fail_silently=False,
+#         )

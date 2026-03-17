@@ -42,6 +42,7 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Category(models.Model):
+    
     category_name=models.CharField(max_length=20) 
     category_description=models.CharField(max_length=200)
     category_image=models.ImageField(upload_to='category/',null=True,blank=True)

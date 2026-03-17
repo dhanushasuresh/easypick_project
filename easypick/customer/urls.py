@@ -24,8 +24,8 @@ urlpatterns = [
     path('shop/',views.shop_view,name='shop'),
     path('account_delete/',views.delete_account,name='account_delete'),
     path('account_delete_confirmation/',views.delete_account_confirmation,name='account_delete_confirmation'),
-    path('product_view/<int:id>',views.product_view,name="product_view"),
-    path('sub_subcategory/<int:id>',views.subcategory_view,name='sub_subcategory'),
+    path('category_view/<int:id>',views.category_view,name="category_view"),
+    path('subcategory/<int:id>',views.subcategory_view,name='subcategory'),
     path('single/<int:id>/',views.single_view,name="single"),
     path('add_cart/<int:id>/',views.add_cart,name='add_cart'),
     path('cart_remove/<int:id>/', views.cart_remove, name='cart_remove'),
@@ -36,6 +36,7 @@ urlpatterns = [
     path('toggle_wishlist/<int:id>/', views.toggle_wishlist, name='toggle_wishlist'),
     path('select-order-address/<int:product_id>/<int:address_id>/', views.select_order_address, name='select_order_address'),
     path('search/',views.search_view,name='search'),
+    path('review',views.review_view,name='review'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

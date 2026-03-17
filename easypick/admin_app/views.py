@@ -70,6 +70,11 @@ def add_category(request):
     
     return render(request, 'admin/add_category.html', {'categories': categories})
 
+def delete_category(request,id):
+    categroy=Category.objects.get(id=id)
+    categroy.delete()
+    return redirect('admin_category')
+
 def add_user(request):
     if request.method=="POST":
         user=User()
@@ -105,3 +110,23 @@ def toggle_user_status(request, user_id):
             messages.error(request, 'User not found!')
     
     return redirect('admin_user')
+
+def edit_category(request, category_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        messages.error(request, "You are not authorized as admin")
+        return redirect('admin_login')
+    
+    category = Category.objects.get(id=category_id)
+    
+    if request.method == 'POST':
+        category.category_name = request.POST.get('category_name')
+        category.category_description = request.POST.get('category_description')
+        if 'category_image' in request.FILES:
+            category.category_image = request.FILES['category_image']
+        category.slug = request.POST.get('slug')
+        category.is_active = request.POST.get('is_active') == 'on'
+        category.save()
+        messages.success(request, 'Category updated successfully!')
+        return redirect('admin_category')
+    
+    return render(request, 'admin/edit_category.html', {'category': category})
