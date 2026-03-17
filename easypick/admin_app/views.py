@@ -69,3 +69,39 @@ def add_category(request):
             return redirect('admin_category')
     
     return render(request, 'admin/add_category.html', {'categories': categories})
+
+def add_user(request):
+    if request.method=="POST":
+        user=User()
+        user.username=request.POST.get('username')
+        user.password=request.POST.get('password')
+        user.first_name=request.POST.get('first_name')
+        user.last_name=request.POST.get('last_name')
+        user.email=request.POST.get('email')
+        image = request.FILES.get('profiley_image')
+        if image:
+            user.profile_image = image
+        user.role=request.POST.get('role')
+        user.phone_number=request.POST.get('phone_number')
+        dob = request.POST.get('dob')
+        if dob:
+            user.dob=dob
+        user.save()
+        return redirect('admin_user')
+    return render(request,'admin/add_user.html')
+
+def toggle_user_status(request, user_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        messages.error(request, "You are not authorized as admin")
+        return redirect('admin_login')
+    
+    if request.method == 'POST':
+        try:
+            user = User.objects.get(id=user_id)
+            user.is_active = not user.is_active
+            user.save()
+            messages.success(request, f'User {"blocked" if user.is_active == False else "unblocked"} successfully!')
+        except User.DoesNotExist:
+            messages.error(request, 'User not found!')
+    
+    return redirect('admin_user')
