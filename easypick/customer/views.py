@@ -388,12 +388,13 @@ def cart_order(request,id):
     cart_item=CartItems.objects.filter(cart=cart).select_related('product')
     address=Address.objects.filter(user=request.user).first()
     subtotal=0
-    subtotal = 0
     for item in cart_item:
         variant = item.product.variants.first()
         if variant:
             subtotal += variant.selling_price * item.quantity
-    return render(request,'customer/cart_orderconfirm.html',{'cart_item':cart_item,'address':address,'subtotal':subtotal})
+            
+    addresses = Address.objects.filter(user=request.user)
+    return render(request,'customer/cart_orderconfirm.html',{'cart_item':cart_item,'address':address,'addresses':addresses,'subtotal':subtotal})
 
 @login_required(login_url="/login")
 def order_confirm_view(request, id):
@@ -418,6 +419,7 @@ def order_confirm_view(request, id):
     return render(request, 'customer/order_confirm.html', context)
 
 def payment_view(request):
+    
     return render(request,'customer/payment.html')
 
 def search_view(request):

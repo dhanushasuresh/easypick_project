@@ -79,21 +79,18 @@
                     </h3>
                     <button onclick="openAddressPanel()" class="text-primary font-bold text-xs uppercase hover:underline">Change</button>
                 </div>
-                {% if address %}
-                <div class="pl-7">
-                    <p class="font-bold text-gray-900">{{ address.full_name }}</p>
-                    <p class="text-sm text-gray-600 mt-1 leading-relaxed">
+                <div id="selectedAddressSection" class="pl-7">
+                    {% if address %}
+                    <p class="font-bold text-gray-900 selected-fullname">{{ address.full_name }}</p>
+                    <p class="text-sm text-gray-600 mt-1 leading-relaxed selected-address-str">
                         {{ address.house_no }}, {{ address.street }}<br>
                         {{ address.city }}, {{ address.state }} - {{ address.zip_code }}
                     </p>
-                    <p class="text-sm font-bold mt-2 text-gray-700">{{ user.phone_number }}</p>
-                </div>
-                {% else %}
-                <div class="pl-7 py-2">
+                    <p class="text-sm font-bold mt-2 text-gray-700 selected-phone">{{ user.phone_number }}</p>
+                    {% else %}
                     <p class="text-sm text-gray-500 italic">No delivery address selected.</p>
-                    <button onclick="openAddressPanel()" class="mt-3 bg-primary text-white text-xs font-bold px-4 py-2 rounded">Add New Address</button>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -200,14 +197,53 @@
 </main>
 
 <div id="addressPanel" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[100]">
-    <div class="h-full flex flex-col">
+    <div class="h-full flex flex-col overflow-hidden">
         <div class="p-6 pb-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 class="text-xl font-bold text-gray-800">Change Address</h2>
+            <h2 class="text-xl font-bold text-gray-800">Select Address</h2>
             <button onclick="closeAddressPanel()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
-        <iframe src="{% url 'address_list' %}" class="flex-1 w-full border-0"></iframe>
+        <div id="addressListContainer" class="flex-1 overflow-y-auto p-6 space-y-4">
+            {% if addresses %}
+                {% for addr in addresses %}
+                <div class="address-card p-5 border border-gray-200 rounded-xl hover:shadow-md hover:border-primary transition-all cursor-pointer group" onclick="selectAddress({{ addr.id }}, this)">
+                    <div class="flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-primary flex items-center justify-center mt-0.5">
+                            <span class="text-xs font-bold opacity-0 group-hover:opacity-100">✓</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="font-bold text-gray-900 text-sm">{{ addr.full_name }}</span>
+                                <span class="bg-gray-100 text-[10px] font-bold px-2 py-0.5 rounded-full text-gray-600 uppercase">
+                                    {{ addr.address_type|default:"Home"|capfirst }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed mb-2 line-clamp-2">
+                                {{ addr.house_no }}, {{ addr.street }}{% if addr.landmark %}, {{ addr.landmark }}{% endif %}<br>
+                                {{ addr.city }}, {{ addr.state }} {{ addr.zip_code }}
+                            </p>
+                            <p class="text-xs font-medium text-gray-700">{{ addr.phone_number }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-16 text-gray-400">
+                    <span class="material-symbols-outlined text-5xl block mb-6 mx-auto">location_off</span>
+                    <p class="text-lg font-medium mb-6">No saved addresses</p>
+                    <a href="{% url 'add_address' %}" target="_blank" class="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        Add New Address
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+            <a href="{% url 'add_address' %}" target="_blank" class="block w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md text-center uppercase tracking-wide text-sm flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">add_location_alt</span>
+                Add New Address
+            </a>
+        </div>
     </div>
 </div>
 <div id="addressOverlay" onclick="closeAddressPanel()" class="fixed inset-0 bg-black/50 hidden z-[90]"></div>
@@ -223,6 +259,38 @@
         document.getElementById('addressOverlay').classList.add('hidden');
         document.body.style.overflow = '';
     }
+
+    async function selectAddress(addressId, element) {
+    const spinner = document.createElement('div');
+    spinner.innerHTML = '<div class="fixed inset-0 bg-black/20 flex items-center justify-center z-[200]"><div class="bg-white p-6 rounded-2xl shadow-2xl flex items-center gap-3"><span class="material-symbols-outlined text-primary animate-spin">hourglass_empty</span><span class="font-bold text-gray-700">Selecting address...</span></div></div>';
+    document.body.appendChild(spinner);
+    
+    try {
+        const response = await fetch(`/customer/select-order-address/-1/${addressId}/`);
+        const data = await response.json();
+        
+        if (data.success) {
+            document.querySelector('.selected-fullname').textContent = data.full_name;
+            document.querySelector('.selected-address-str').innerHTML = data.address_str.replace(/\n/g, '<br>');
+            document.querySelector('.selected-phone').textContent = data.phone || '{{ user.phone_number }}';
+            
+            document.querySelectorAll('.address-card').forEach(card => 
+                card.classList.remove('ring-2', 'ring-primary', 'bg-primary/5')
+            );
+            
+            element.classList.add('ring-2', 'ring-primary', 'bg-primary/5');
+            
+            closeAddressPanel();
+        } else {
+            alert('Error selecting address');
+        }
+    } catch (error) {
+        console.error('Address selection failed:', error);
+        alert('Failed to select address. Please try again.');
+    } finally {
+        spinner.remove();
+    }
+}
 </script>
 
 </body>
