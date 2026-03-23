@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login with Google</title>
+    {% load socialaccount %}
+    <script>
+        window.location.href = '{% provider_login_url "google" %}';
+    </script>
+</head>
+<body>
+    <p>Redirecting to Google...</p>
+</body>
+</html>

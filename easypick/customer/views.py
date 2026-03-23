@@ -334,12 +334,25 @@ def subcategory_view(request,id):
 
 def single_view(request, id):
   
-    product = ProductVariant.objects.select_related('product').prefetch_related('images').get(id=id)
+    product = get_object_or_404(ProductVariant.objects.select_related('product').prefetch_related('images'),id=id)
 
-    reviews = Review.objects.filter(product=product.product).select_related('user').prefetch_related('images').order_by('-created_at')
+    if request.method == "POST":
+        comment = request.POST.get('comment')
+        rating = request.POST.get('rating')
+
+        if request.user.is_authenticated:
+            Review.objects.create(
+                product=product.product,
+                user=request.user,
+                comments='comment',
+                rating='rating' if rating else 5
+            )
+    reviews = Review.objects.filter(
+        product=product.product
+    ).select_related('user').prefetch_related('images').order_by('-created_at')
+    
     subcategory = product.product.subcategory
-    related_products=Product.objects.filter(subcategory=subcategory).prefetch_related("variants")
-    print(related_products)
+    related_products = Product.objects.filter(subcategory=subcategory).exclude(id=product.product.id).prefetch_related("variants")
     in_wishlist = False
     if request.user.is_authenticated:
         wishlist = Wishlist.objects.filter(customer=request.user).first()

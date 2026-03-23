@@ -7,7 +7,7 @@ urlpatterns = [
     path('login/',views.login_view,name="login"),
     path('logout/',views.logout_view,name='logout'),
     path('admin_login/',views.admin_view,name="admin_login"),
-    path('shop/',views.shop_view,name='shop'),
+    # path('shop/',views.shop_view,name='shop'),
     path('about/',views.about_view,name='about'),
     path('contact/',views.contact_view,name='contact'),
     path('forgot-password/', auth_views.PasswordResetView.as_view( template_name='core/password_reset.html' ), name='password_reset'), 

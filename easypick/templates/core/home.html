@@ -112,11 +112,15 @@
             </a>
         </div>
 
-        <div id="categoryCarousel" class="flex gap-6 scrollbar-none overflow-hidden relative">
+        <style>
+            #categoryTrack, #productTrack { scrollbar-width: none; -ms-overflow-style: none; }
+            #categoryTrack::-webkit-scrollbar, #productTrack::-webkit-scrollbar { display: none; }
+        </style>
+        <div id="categoryCarousel" class="relative w-full">
             <button id="prevBtn" class="absolute left-0 z-10 w-12 h-12 bg-white/80 hover:bg-white shadow-lg rounded-full flex items-center justify-center text-primary text-xl -translate-y-1/2 top-1/2 transition-all hidden md:flex">
                 <span class="material-symbols-outlined">chevron_left</span>
             </button>
-            <div class="flex gap-6 pb-4 -ml-6 pl-12 pr-12 overflow-x-auto snap-x snap-mandatory scrollbar-none">
+            <div id="categoryTrack" class="flex gap-6 pb-4 px-12 overflow-x-auto snap-x snap-mandatory">
                 {% for x in category %}
                 <a href="{% url 'category_view' x.id %}" class="group flex flex-col h-[300px] w-[220px] flex-shrink-0 snap-center">
                     <div class="relative overflow-hidden rounded-xl bg-[#f2f3f2] aspect-square mb-3 flex-shrink-0">
@@ -124,15 +128,9 @@
                              style='background-image: url("{{x.category_image.url}}");'>
                         </div>
                     </div>
-                   
                     <div class="flex flex-col flex-grow px-2">
-                        <h3 class="text-sm font-semibold text-[#141514] group-hover:text-primary transition-colors line-clamp-1 text-center leading-tight">
-                            {{x.category_description}}
-                        </h3>
+                        <h3 class="text-sm font-semibold text-[#141514] group-hover:text-primary transition-colors line-clamp-1 text-center leading-tight">{{x.category_description}}</h3>
                         <p class="text-[#737874] text-xs mb-2 text-center font-bold">{{x.category_name}}</p>
-                        
-                        <div class="mt-auto pt-1">
-                        </div>
                     </div>
                 </a>
                 {% endfor %}
@@ -152,83 +150,59 @@
                 View all item
                 <span class="material-symbols-outlined text-sm">open_in_new</span>
             </a>
-            
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-10">
-            
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {% for x in products %}
-                        <div
-                            class="product-card group relative bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-500">
-                            <div
-                                class="absolute top-3 left-0 right-0 z-10 px-3 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <button
-                                    class="wishlist-btn p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:text-red-500 transition-colors {% if x.id in in_wishlist_ids %}fav-active{% endif %}"
-                                    data-variant-id="{{ x.id }}">
-                                    <span class="material-symbols-outlined text-[18px]">favorite</span>
-                                </button>
-
-                                <label
-                                    class="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm cursor-pointer">
-                                    <input type="checkbox"
-                                        class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary">
-                                    <span class="text-[9px] font-bold text-gray-700 uppercase">Compare</span>
-                                </label>
-                            </div>
-
-                            <a href="{% url 'single' x.id %}" class="block">
-                                <div
-                                    class="aspect-square w-full bg-[#f8f9fa] flex items-center justify-center p-6 overflow-hidden">
-                                    {% with x.images.all|first as primary_image %}
-                                    <img src="{{ primary_image.image_url.url }}"
-                                        class="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-110"
-                                        alt="{{x.product.name}}">
-                                    {% endwith %}
-                                </div>
-
-                                <div class="p-4 space-y-2">
-                                    <h3
-                                        class="text-xs md:text-sm font-bold text-[#141514] line-clamp-2 min-h-[36px] leading-snug group-hover:text-primary transition-colors">
-                                        {{x.product.name}}
-                                    </h3>
-
-                                    <div class="flex items-center gap-1.5">
-                                        <div class="flex items-center text-primary font-black text-[10px]">
-                                            4.9 <span class="material-symbols-outlined text-[10px] ml-0.5"
-                                                style="font-variation-settings: 'FILL' 1;">star</span>
-                                        </div>
-                                        <span class="text-[9px] font-bold text-gray-400">(86)</span>
-                                    </div>
-
-                                    <div class="flex flex-wrap items-baseline gap-1.5">
-                                        <span class="text-base font-black text-[#141514]">₹{{x.selling_price}}</span>
-                                        <span class="text-[10px] text-gray-400 line-through">₹{{x.mrp_price}}</span>
-                                        <span
-                                            class="text-[9px] font-bold text-green-600 bg-green-50 px-1 py-0.5 rounded">14%
-                                            Off</span>
-                                    </div>
-
-                                    <div class="flex items-center gap-1.5">
-                                        <span
-                                            class="material-symbols-outlined text-xs text-gray-400">local_shipping</span>
-                                        <p class="text-[10px] text-gray-500">Delivery by <span
-                                                class="text-gray-900 font-bold">Mon, 9th</span></p>
-                                    </div>
-
-                                    <div class="pt-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                        <a href="{% url 'add_cart' x.id %}"
-                                            class="w-full bg-primary text-white py-2 rounded-lg text-[10px] font-bold hover:bg-[#3a493d] flex items-center justify-center gap-1.5">
-                                            <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
-                                            Add to Cart
-                                        </a>
-                                    </div>
-                                </div>
-                            </a>
+        <div id="productCarousel" class="relative w-full">
+            <button id="productPrevBtn" class="absolute left-0 z-10 w-12 h-12 bg-white hover:bg-gray-50 shadow-lg rounded-full flex items-center justify-center text-primary -translate-y-1/2 top-1/2 transition-all hidden md:flex">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <div id="productTrack" class="flex gap-6 pb-4 px-12 overflow-x-auto snap-x snap-mandatory">
+                {% for x in products %}
+                <div class="product-card group relative bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-500 flex-shrink-0 w-[220px] snap-center">
+                    <div class="absolute top-3 left-0 right-0 z-10 px-3 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button class="wishlist-btn p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:text-red-500 transition-colors {% if x.id in in_wishlist_ids %}fav-active{% endif %}" data-variant-id="{{ x.id }}">
+                            <span class="material-symbols-outlined text-[18px]">favorite</span>
+                        </button>
+                        <label class="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm cursor-pointer">
+                            <input type="checkbox" class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary">
+                            <span class="text-[9px] font-bold text-gray-700 uppercase">Compare</span>
+                        </label>
+                    </div>
+                    <a href="{% url 'single' x.id %}" class="block">
+                        <div class="aspect-square w-full bg-[#f8f9fa] flex items-center justify-center p-6 overflow-hidden">
+                            {% with x.images.all|first as primary_image %}
+                            <img src="{{ primary_image.image_url.url }}" class="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-110" alt="{{x.product.name}}">
+                            {% endwith %}
                         </div>
-                        {% endfor %}
+                        <div class="p-4 space-y-2">
+                            <h3 class="text-xs md:text-sm font-bold text-[#141514] line-clamp-2 min-h-[36px] leading-snug group-hover:text-primary transition-colors">{{x.product.name}}</h3>
+                            <div class="flex items-center gap-1.5">
+                                <div class="flex items-center text-primary font-black text-[10px]">4.9 <span class="material-symbols-outlined text-[10px] ml-0.5" style="font-variation-settings: 'FILL' 1;">star</span></div>
+                                <span class="text-[9px] font-bold text-gray-400">(86)</span>
+                            </div>
+                            <div class="flex flex-wrap items-baseline gap-1.5">
+                                <span class="text-base font-black text-[#141514]">₹{{x.selling_price}}</span>
+                                <span class="text-[10px] text-gray-400 line-through">₹{{x.mrp_price}}</span>
+                                <span class="text-[9px] font-bold text-green-600 bg-green-50 px-1 py-0.5 rounded">14% Off</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-xs text-gray-400">local_shipping</span>
+                                <p class="text-[10px] text-gray-500">Delivery by <span class="text-gray-900 font-bold">Mon, 9th</span></p>
+                            </div>
+                            <div class="pt-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <a href="{% url 'add_cart' x.id %}" class="w-full bg-primary text-white py-2 rounded-lg text-[10px] font-bold hover:bg-[#3a493d] flex items-center justify-center gap-1.5">
+                                    <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                                    Add to Cart
+                                </a>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
             </div>
+            <button id="productNextBtn" class="absolute right-0 z-10 w-12 h-12 bg-white hover:bg-gray-50 shadow-lg rounded-full flex items-center justify-center text-primary -translate-y-1/2 top-1/2 transition-all hidden md:flex">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
         </div>
     </section>
 
@@ -330,31 +304,25 @@
         }
     });
 
-    // Category carousel navigation
-    const carousel = document.getElementById('categoryCarousel');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    if (carousel && prevBtn && nextBtn) {
-        const scrollAmount = 240; // Card width + gap
-        
-        prevBtn.addEventListener('click', () => {
-            carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    function initCarousel(trackId, prevId, nextId) {
+        const track = document.getElementById(trackId);
+        const prevBtn = document.getElementById(prevId);
+        const nextBtn = document.getElementById(nextId);
+        if (!track || !prevBtn || !nextBtn) return;
+        const scrollAmount = 244;
+        nextBtn.addEventListener('click', () => track.scrollBy({ left: scrollAmount, behavior: 'smooth' }));
+        prevBtn.addEventListener('click', () => track.scrollBy({ left: -scrollAmount, behavior: 'smooth' }));
+        track.addEventListener('scroll', () => {
+            const atStart = track.scrollLeft <= 0;
+            const atEnd = track.scrollLeft + track.offsetWidth >= track.scrollWidth - 10;
+            prevBtn.style.opacity = atStart ? '0.3' : '1';
+            prevBtn.style.pointerEvents = atStart ? 'none' : 'auto';
+            nextBtn.style.opacity = atEnd ? '0.3' : '1';
+            nextBtn.style.pointerEvents = atEnd ? 'none' : 'auto';
         });
-        
-        nextBtn.addEventListener('click', () => {
-            carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        });
-        
-        // Auto-hide buttons based on scroll position
-        const checkButtons = () => {
-            const { scrollLeft, scrollWidth, clientWidth } = carousel.children[1];
-            prevBtn.style.opacity = scrollLeft > 0 ? '1' : '0.5';
-            nextBtn.style.opacity = scrollLeft < scrollWidth - clientWidth - 1 ? '1' : '0.5';
-        };
-        
-        carousel.children[1].addEventListener('scroll', checkButtons);
-        checkButtons();
     }
+    initCarousel('categoryTrack', 'prevBtn', 'nextBtn');
+    initCarousel('productTrack', 'productPrevBtn', 'productNextBtn');
     
 </script>
 
