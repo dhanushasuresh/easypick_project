@@ -14,6 +14,13 @@ class SellerProfile(models.Model):
     rating = models.FloatField(default=0,null=True)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    STATUS_CHOICES = [
+        ("PENDING", "Pending"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
+
 
 
 
@@ -31,6 +38,12 @@ class Product(models.Model):
     approval_status = models.CharField(max_length=20, default='PENDING')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    STATUS_CHOICES = [
+        ("PENDING", "Pending"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
     def __str__(self):
         return self.name
 
@@ -39,6 +52,7 @@ class ProductVariant(models.Model):
     sku_code = models.CharField(max_length=100, unique=True)
     mrp = models.DecimalField(max_digits=10, decimal_places=2)
     selling_price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_percent = models.IntegerField(default=0)
     cost_price = models.DecimalField(max_digits=10, decimal_places=2)
     stock_quantity = models.IntegerField()
     weight = models.FloatField()
@@ -60,7 +74,7 @@ class ProductVariant(models.Model):
 
 class ProductImage(models.Model): 
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name="images") 
-    image_url = models.ImageField(upload_to='product_image') 
+    image = models.ImageField(upload_to='product_image') 
     alt_text = models.CharField(max_length=255, blank=True) 
     is_primary = models.BooleanField(default=False) 
     def __str__(self): return F"{self.variant}'s image "
@@ -82,3 +96,6 @@ class InventoryLog(models.Model):
     reason = models.CharField(max_length=50)
     performed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Discount(models.Model):variant = models.ForeignKey(ProductVariant,on_delete=models.CASCADE,null=True,blank=True,related_name="discounts")

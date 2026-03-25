@@ -6,7 +6,6 @@ from .models import (
     Category,
     SubCategory,
    
-   
 )
 
 admin.site.register(User)
@@ -14,4 +13,3 @@ admin.site.register(Address)
 admin.site.register(Notification)
 admin.site.register(Category)
 admin.site.register(SubCategory)
-

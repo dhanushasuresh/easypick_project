@@ -104,7 +104,8 @@ class Order(models.Model):
         choices=STATUS_CHOICES,
         default='Pending'
     )
-
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
     total_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2

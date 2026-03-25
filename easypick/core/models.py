@@ -20,6 +20,7 @@ class User(AbstractUser):
     dob=models.DateField(null=True,blank=True)
     date_login=models.DateField(null=True)
     is_active = models.BooleanField(default=True)
+    is_email_verified = models.BooleanField(default=False)
 
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='addresses')
@@ -58,4 +59,3 @@ class SubCategory(models.Model):
     created_at = models.DateField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     slug = models.SlugField(unique=True, blank=True)
-
