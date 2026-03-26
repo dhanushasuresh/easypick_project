@@ -439,6 +439,9 @@ def cart_order(request,id):
     addresses = Address.objects.filter(user=request.user)
     return render(request,'customer/cart_orderconfirm.html',{'cart_item':cart_item,'address':address,'addresses':addresses,'subtotal':subtotal,"total":total})
 
+def cart_payment(request,id):
+    return render(request,'customer/payment.html')
+
 @login_required(login_url="/login")
 def order_confirm_view(request, id):
     product = ProductVariant.objects.select_related('product').prefetch_related('images').get(id=id)

@@ -9,11 +9,12 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+# from dotenv import load_dotenv
+# load_dotenv()
 from pathlib import Path
 import os
 import pymysql
-pymysql.install_as_MySQLdb()
+# pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,12 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
-
+SECRET_KEY = 'temporary-secret-key-for-debugging'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -81,15 +81,14 @@ AUTH_USER_MODEL = 'core.User'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Allauth (only once, at correct place)
     'allauth.account.middleware.AccountMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware', 
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'easypick.urls'
@@ -183,7 +182,7 @@ DEFAULT_FROM_EMAIL = ' dhanushasuresh2026@gmail.com '
 
 LOGIN_URL = 'login'
 
-LOGIN_REDIRECT_URL = 'home'
+
 LOGOUT_REDIRECT_URL = 'mainlogin'
 
 

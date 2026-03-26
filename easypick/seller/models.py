@@ -98,4 +98,5 @@ class InventoryLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class Discount(models.Model):variant = models.ForeignKey(ProductVariant,on_delete=models.CASCADE,null=True,blank=True,related_name="discounts")
+class Discount(models.Model):
+    variant = models.ForeignKey(ProductVariant,on_delete=models.CASCADE,null=True,blank=True,related_name="discounts")
